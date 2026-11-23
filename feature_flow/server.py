@@ -17,7 +17,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from .model import FLOWS_DIR, Flow, list_flows
+from .model import FLOWS_DIR, Flow, flow_path, list_flows
 
 STATIC = Path(__file__).resolve().parent / "static"
 # Thư mục thương hiệu riêng (tuỳ chọn): logo.*, favicon.*, brand.css, brand.json {"name": "..."}
@@ -40,9 +40,15 @@ def api_flows() -> list[dict]:
     return list_flows()
 
 
+def _read_path(flow_id: str) -> Path:
+    """Đường ĐỌC: thư mục flow, không có thì hướng dẫn đóng gói (ghi/xoá vẫn chỉ dùng _path)."""
+    _path(flow_id)
+    return flow_path(flow_id)
+
+
 @app.get("/api/flows/{flow_id}")
 def api_flow(flow_id: str) -> dict:
-    p = _path(flow_id)
+    p = _read_path(flow_id)
     if not p.exists():
         raise HTTPException(404, f"flow '{flow_id}' không tồn tại")
     return Flow.load(flow_id).to_dict()
@@ -60,7 +66,7 @@ def api_save(flow_id: str, data: dict) -> dict:
 
 @app.get("/api/flows/{flow_id}/markdown")
 def api_markdown(flow_id: str) -> dict:
-    p = _path(flow_id)
+    p = _read_path(flow_id)
     if not p.exists():
         raise HTTPException(404, f"flow '{flow_id}' không tồn tại")
     return {"id": flow_id, "markdown": Flow.load(flow_id).to_markdown()}

@@ -62,6 +62,12 @@ application = Starlette(routes=[
 
 **B. Reverse proxy** (nginx / Kubernetes Ingress) — chạy riêng 1 service, proxy path `/feature-flow/` về nó.
 
+## Hướng dẫn sử dụng có sẵn
+
+3 tài liệu hướng dẫn (vẽ flow, viết tài liệu, dùng thư viện code) đóng gói kèm thư viện ở
+`feature_flow/guides/` → thư mục flow nào cũng tự có, bấm **📖 Hướng dẫn** để mở. Sửa rồi lưu thì
+bản sửa ghi vào thư mục flow của bạn (đè bản gốc theo id). Dựng lại: `python build_guide_doc.py`.
+
 ## Đổi thương hiệu (logo, favicon, tên, màu)
 
 Tạo thư mục `brand/` ngay trong thư mục flow (vd `feature-flow/brand/`) — hoặc trỏ env `FF_BRAND_DIR`

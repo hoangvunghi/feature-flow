@@ -3,9 +3,11 @@
   - huong-dan-flow     : vẽ & dùng sơ đồ flow
   - huong-dan-docs     : viết tài liệu (kiểu Word)
   - huong-dan-library  : vẽ luồng bằng thư viện code
-Chạy: uv run python build_guide_doc.py
+Chạy: uv run python build_guide_doc.py   (ghi vào feature_flow/guides/ — đóng gói kèm thư viện,
+mọi thư mục flow đều tự có hướng dẫn)
 """
 from feature_flow import Flow
+from feature_flow.model import GUIDES_DIR
 
 GROUP = "Hướng dẫn"
 
@@ -16,7 +18,7 @@ def make(doc_id, title, subtitle, md):
     f.group = GROUP
     f.subtitle = subtitle
     f.doc_md = md
-    print("saved:", f.save())
+    print("saved:", f.save(GUIDES_DIR))
 
 
 # ───────────────────────── 1) SƠ ĐỒ FLOW ─────────────────────────

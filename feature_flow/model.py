@@ -30,6 +30,16 @@ def _default_flows_dir() -> Path:
 
 
 FLOWS_DIR = Path(os.environ.get("FF_FLOWS_DIR") or _default_flows_dir())
+# Tài liệu hướng dẫn đóng gói KÈM thư viện → thư mục flow nào cũng có sẵn (chỉ đọc; sửa rồi lưu
+# thì bản sửa ghi vào FLOWS_DIR và đè bản gốc theo id).
+GUIDES_DIR = Path(__file__).resolve().parent / "guides"
+
+
+def flow_path(flow_id: str, flows_dir: Path | None = None) -> Path:
+    """File của flow: ưu tiên thư mục flow; không có thì lấy hướng dẫn đóng gói (khi dùng FLOWS_DIR mặc định)."""
+    p = (flows_dir or FLOWS_DIR) / f"{flow_id}.json"
+    g = GUIDES_DIR / f"{flow_id}.json"
+    return g if flows_dir is None and not p.exists() and g.exists() else p
 
 # Kiểu khối: start/end = vòng tròn, decision = thoi (rẽ nhánh), process = hộp bo góc.
 NODE_TYPES = ("start", "end", "decision", "process")
@@ -192,8 +202,7 @@ class Flow:
 
     @classmethod
     def load(cls, flow_id: str, flows_dir: Path | None = None) -> "Flow":
-        d = flows_dir or FLOWS_DIR
-        return cls.from_dict(json.loads((d / f"{flow_id}.json").read_text(encoding="utf-8")))
+        return cls.from_dict(json.loads(flow_path(flow_id, flows_dir).read_text(encoding="utf-8")))
 
     # ---- Markdown (Mermaid) ----
     def to_markdown(self) -> str:
@@ -297,11 +306,13 @@ def _edge_compat(e: dict) -> dict:
 
 def list_flows(flows_dir: Path | None = None) -> list[dict]:
     d = flows_dir or FLOWS_DIR
+    files = {p.stem: p for p in (GUIDES_DIR.glob("*.json") if flows_dir is None else [])}
+    files.update({p.stem: p for p in d.glob("*.json")})   # flow của user đè hướng dẫn cùng id
     out = []
-    for p in sorted(d.glob("*.json")):
+    for stem, p in sorted(files.items()):
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
-            out.append({"id": data.get("id", p.stem), "title": data.get("title", p.stem),
+            out.append({"id": data.get("id", stem), "title": data.get("title", stem),
                         "group": data.get("group", ""), "kind": data.get("kind", "flow"),
                         "visibility": data.get("visibility", "private")})
         except Exception:  # noqa: BLE001 — file hỏng thì bỏ qua, không chặn list
