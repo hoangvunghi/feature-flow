@@ -28,7 +28,7 @@ function openModal({ message, input = false, value = "", okText = "OK", choices 
     const done = (val) => { m.classList.add("hidden"); ok.onclick = cancel.onclick = inp.onkeydown = null; chrow.innerHTML = ""; fwrap.innerHTML = ""; resolve(val); };
     if (choices) {
       actions.classList.add("hidden"); chrow.classList.remove("hidden"); chrow.innerHTML = "";
-      choices.forEach((c, i) => { const b = document.createElement("button"); b.className = "btn " + (i === 0 ? "solid" : "ghost"); b.innerHTML = c.label; b.onclick = () => done(c.value); chrow.appendChild(b); });
+      choices.forEach((c, i) => { const b = document.createElement("button"); b.className = "btn " + (i === 0 ? "solid" : "ghost"); b.textContent = c.label;   /* label có tên folder do user đặt → KHÔNG innerHTML */ b.onclick = () => done(c.value); chrow.appendChild(b); });
       const hb = document.createElement("button"); hb.className = "btn ghost"; hb.textContent = "Hủy"; hb.onclick = () => done(null); chrow.appendChild(hb);
     } else if (fields) {   // nhiều ô cùng lúc → trả object {key: value}
       actions.classList.remove("hidden"); chrow.classList.add("hidden");
