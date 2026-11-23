@@ -30,16 +30,20 @@ function applyKind() {
   if (chip) chip.classList.toggle("hidden", isDoc);
   if (isDoc) renderDoc();
 }
+// markdown → HTML ĐÃ LỌC (chặn <script>, onerror=…). Thiếu marked/DOMPurify (CDN lỗi) → hiện chữ thô, không render HTML.
+function mdHtml(md) {
+  return window.marked && window.DOMPurify ? DOMPurify.sanitize(marked.parse(md)) : esc(md);
+}
 function renderDoc() {
   const md = flow.doc_md || "";
   const view = $("#doc-view");
-  view.innerHTML = window.marked ? marked.parse(md) : esc(md);
+  view.innerHTML = mdHtml(md);
   const ed = editing();
   $("#doc-editor").classList.toggle("hidden", !ed);
   view.classList.toggle("hidden", ed);
   // trình soạn kiểu Word: nạp HTML từ markdown; chỉ nạp khi KHÔNG đang gõ (tránh nhảy con trỏ)
   const rich = $("#doc-rich");
-  if (ed && document.activeElement !== rich) { rich.innerHTML = window.marked ? marked.parse(md) : esc(md); ensureRichTail(); }
+  if (ed && document.activeElement !== rich) { rich.innerHTML = mdHtml(md); ensureRichTail(); }
   buildToc(view);
 }
 // Turndown: biên dịch HTML (những gì gõ) → Markdown để lưu

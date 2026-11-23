@@ -1,5 +1,5 @@
 # path: feature_flow/server.py
-"""FastAPI: serve trang web + CRUD flow (đọc/ghi file JSON trong flows/).
+"""FastAPI: serve trang web + CRUD flow (đọc/ghi file JSON trong feature-flow/).
 
 Chạy:  uvicorn feature_flow.server:app --port 4404 --reload
 Mở:    http://127.0.0.1:4404
@@ -21,7 +21,9 @@ from .model import FLOWS_DIR, Flow, list_flows
 
 STATIC = Path(__file__).resolve().parent / "static"
 # Thư mục thương hiệu riêng (tuỳ chọn): logo.*, favicon.*, brand.css, brand.json {"name": "..."}
-BRAND_DIR = Path(os.environ["FF_BRAND_DIR"]) if os.environ.get("FF_BRAND_DIR") else None
+# Mặc định <FLOWS_DIR>/brand (gom chung 1 thư mục với flow); FF_BRAND_DIR để trỏ chỗ khác.
+_brand = Path(os.environ["FF_BRAND_DIR"]) if os.environ.get("FF_BRAND_DIR") else FLOWS_DIR / "brand"
+BRAND_DIR = _brand if _brand.is_dir() else None
 app = FastAPI(title="feature-flow")
 _ID_OK = re.compile(r"^[A-Za-z0-9_-]{1,80}$")
 

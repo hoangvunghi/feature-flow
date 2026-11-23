@@ -21,7 +21,7 @@ c = f.decision("Điều kiện?", step=2, explain="…")
 f.link(s, a); f.link(a, c)
 f.link(c, f.process("Nhánh true", step=3), "có (true)")
 f.narrate(1, "Tiêu đề bước", "Nội dung…", note="Cẩn thận…", note_type="warn", badge="VẤN ĐỀ")
-f.save()                      # -> flows/abc.json
+f.save()                      # -> feature-flow/abc.json
 ```
 
 **2. Bật server xem/sửa trên web:**
@@ -31,13 +31,13 @@ uvicorn feature_flow.server:app --port 4404 --reload
 ```
 - **Play / ← → / R / Space**: chạy lần lượt từng bước.
 - **Bấm 1 khối**: panel phải hiện giải thích khối đó.
-- **Bật "Chỉnh sửa"**: thêm Bước/Nhánh, 🔗 nối 2 khối, sửa nhãn/giải thích + nội dung bước → **💾 Lưu** (ghi lại `flows/<id>.json`).
+- **Bật "Chỉnh sửa"**: thêm Bước/Nhánh, 🔗 nối 2 khối, sửa nhãn/giải thích + nội dung bước → **💾 Lưu** (ghi lại `feature-flow/<id>.json`).
 
 ## Cấu trúc
 - `feature_flow/model.py` — `Flow/Node/Edge/Step` + đọc/ghi JSON.
 - `feature_flow/server.py` — FastAPI: serve web + CRUD flow.
 - `feature_flow/static/` — giao diện (Cytoscape + dagre, light paper).
-- `flows/*.json` — mỗi luồng 1 file (db nhẹ, git-friendly).
+- `feature-flow/*.json` — mỗi luồng 1 file (db nhẹ, git-friendly).
 - `build_demo.py` — ví dụ dựng luồng bằng API.
 
 ## Nhúng vào web khác (chạy chung cổng, dưới subpath)
@@ -64,10 +64,11 @@ application = Starlette(routes=[
 
 ## Đổi thương hiệu (logo, favicon, tên, màu)
 
-Tạo 1 thư mục rồi trỏ env `FF_BRAND_DIR` vào đó — file nào có thì đè, thiếu thì giữ mặc định:
+Tạo thư mục `brand/` ngay trong thư mục flow (vd `feature-flow/brand/`) — hoặc trỏ env `FF_BRAND_DIR`
+sang chỗ khác. File nào có thì đè, thiếu thì giữ mặc định:
 
 ```
-my-brand/
+feature-flow/brand/
   brand.json     {"name": "Acme Flow"}        → tên ở header/footer + tiêu đề tab
   logo.svg       (hoặc .png/.jpg/.webp)        → logo header + footer
   favicon.svg    (hoặc .png/.ico)              → icon tab trình duyệt
@@ -75,9 +76,12 @@ my-brand/
 ```
 
 ```bash
-FF_BRAND_DIR=./my-brand uvicorn feature_flow.server:app --port 4404
+uvicorn feature_flow.server:app --port 4404                         # tự lấy feature-flow/brand/
+FF_BRAND_DIR=./my-brand uvicorn feature_flow.server:app --port 4404  # hoặc thư mục khác
 ```
 
-Chỗ lưu flow: đặt env `FF_FLOWS_DIR=/data/flows` (mặc định là `flows/` cạnh package).
+Chỗ lưu flow: đặt env `FF_FLOWS_DIR=/data/flows`. Không đặt thì mặc định là `<gốc project>/feature-flow/`
+(gốc = thư mục cha gần nhất có `.git`, tính từ thư mục đang chạy; không có `.git` thì thư mục đang chạy).
+Trong Docker thường không có `.git` → nên đặt `FF_FLOWS_DIR` tường minh.
 
 > ⚠️ Chưa có auth riêng: khi mount kiểu A, request vào `/feature-flow` **không đi qua** middleware đăng nhập của Django — cần tự chặn (bọc auth) trước khi mở cho người ngoài.

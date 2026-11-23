@@ -132,7 +132,7 @@ b = f.process("Làm việc A", step=1, explain="Mô tả bước A")
 c = f.decision("Ổn chưa?", step=2)
 f.link(a, b); f.link(b, c)
 f.link(c, b, "chưa → làm lại")   # cạnh quay ngược = vòng lặp
-f.save()                          # -> flows/vi-du.json
+f.save()                          # -> feature-flow/vi-du.json
 ```
 
 Chạy file đó (`uv run python vi-du.py`) rồi mở luồng trên web.
@@ -147,7 +147,7 @@ Chạy file đó (`uv run python vi-du.py`) rồi mở luồng trên web.
 | `f.link(a, b, "nhãn")` | nối mũi tên a → b |
 | `f.narrate(n, title, body, note=, badge=)` | nội dung bước n ở panel phải |
 | `f.meta(subtitle=, duration=, level=)` | thông tin luồng |
-| `f.save()` | ghi ra `flows/<id>.json` |
+| `f.save()` | ghi ra `feature-flow/<id>.json` |
 
 ## Thêm màu, nhóm, ghi chú
 

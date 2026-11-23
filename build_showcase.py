@@ -1,7 +1,7 @@
 # path: build_showcase.py
 """Flow mẫu dùng FULL tính năng: màu khối, nhóm (có mô tả), vòng lặp,
 ghi chú của khối (nhiều), ghi chú luồng (checklist), trình chiếu từng bước.
-Chạy: uv run python build_showcase.py  ->  flows/demo-day-du.json
+Chạy: uv run python build_showcase.py  ->  feature-flow/demo-day-du.json
 """
 from feature_flow import Flow
 from feature_flow.model import Group

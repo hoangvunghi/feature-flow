@@ -1,6 +1,6 @@
 # path: build_demo.py
 """Dựng flow demo bằng API thư viện — CŨNG là cách Claude 'vẽ luồng khi lên plan'.
-Chạy: python build_demo.py   (ghi ra flows/ship-feature.json)
+Chạy: python build_demo.py   (ghi ra feature-flow/ship-feature.json)
 """
 from feature_flow import Flow
 

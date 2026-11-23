@@ -11,7 +11,9 @@ async function save() {
 // ---------- helpers ----------
 function nodeOf(id) { return flow.nodes.find((n) => n.id === id) || { step: 0 }; }
 function markDirty() { dirty = true; $("#btnSave").disabled = false; }
-function esc(s) { const d = document.createElement("div"); d.textContent = s == null ? "" : s; return d.innerHTML; }
+// escape cho CẢ nội dung lẫn thuộc tính ("…" / '…') — textContent→innerHTML không escape dấu nháy
+function esc(s) { const d = document.createElement("div"); d.textContent = s == null ? "" : s;
+  return d.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
 function toast(m, err) { const t = $("#toast"); t.textContent = m; t.className = "toast" + (err ? " err" : "");
   setTimeout(() => t.classList.add("hidden"), 2200); }
 

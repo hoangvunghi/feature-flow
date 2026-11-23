@@ -9,7 +9,7 @@
     f.link(s, plan); f.link(plan, cond)
     f.link(cond, f.process("Debug top-down", explain="Khoanh tầng bằng bằng chứng."), "có (true)")
     f.link(cond, f.end(), "không (false)")
-    f.save()                     # -> flows/ship-feature.json
+    f.save()                     # -> <gốc project>/feature-flow/ship-feature.json
 
 Server đọc file này để render; người dùng sửa trên web thì server ghi đè lại chính file đó.
 """
@@ -21,8 +21,15 @@ import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-# đổi chỗ lưu bằng env FF_FLOWS_DIR (khi cài như thư viện / nhúng vào app khác)
-FLOWS_DIR = Path(os.environ.get("FF_FLOWS_DIR") or Path(__file__).resolve().parent.parent / "flows")
+def _default_flows_dir() -> Path:
+    """Không đặt FF_FLOWS_DIR → <gốc project>/feature-flow, gốc = thư mục cha gần nhất có .git
+    (tính từ thư mục đang chạy); không có .git thì <thư mục đang chạy>/feature-flow."""
+    cwd = Path.cwd().resolve()
+    root = next((p for p in (cwd, *cwd.parents) if (p / ".git").exists()), cwd)
+    return root / "feature-flow"
+
+
+FLOWS_DIR = Path(os.environ.get("FF_FLOWS_DIR") or _default_flows_dir())
 
 # Kiểu khối: start/end = vòng tròn, decision = thoi (rẽ nhánh), process = hộp bo góc.
 NODE_TYPES = ("start", "end", "decision", "process")

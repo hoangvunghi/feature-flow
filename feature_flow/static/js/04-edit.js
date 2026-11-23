@@ -251,7 +251,7 @@ function fillNodeGroupSel() {
   const selNode = cy.$("node.sel"); const nid = selNode.length ? selNode.id() : null;
   const cur = (flow.groups || []).find((g) => (g.members || []).includes(nid));
   sel.innerHTML = '<option value="">— không —</option>'
-    + (flow.groups || []).map((g) => `<option value="${g.id}"${cur && cur.id === g.id ? " selected" : ""}>${esc(g.label)}</option>`).join("")
+    + (flow.groups || []).map((g) => `<option value="${esc(g.id)}"${cur && cur.id === g.id ? " selected" : ""}>${esc(g.label)}</option>`).join("")
     + '<option value="__new">+ Tạo nhóm mới…</option>';
 }
 $("#e-nodegroup").addEventListener("change", async () => {

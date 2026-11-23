@@ -1,6 +1,6 @@
 # path: build_blog_demo.py
 """Blog demo (kind=doc) nhiều section — để xem render markdown + mục lục TOC.
-Chạy: uv run python build_blog_demo.py   ->  flows/blog-debug-pipeline.json
+Chạy: uv run python build_blog_demo.py   ->  feature-flow/blog-debug-pipeline.json
 """
 from feature_flow import Flow
 
