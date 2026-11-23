@@ -1,0 +1,274 @@
+{
+  "id": "demo-day-du",
+  "title": "Demo đầy đủ tính năng",
+  "kind": "flow",
+  "visibility": "private",
+  "doc_md": "",
+  "group": "Hướng dẫn chung",
+  "subtitle": "Ship một tính năng: plan → dựng → verify → gặp khó (loop) → review → ship.",
+  "duration": "demo",
+  "level": "Đủ tính năng",
+  "learn": [],
+  "notes": [
+    {
+      "t": "Hiểu vấn đề trước khi cắt nhỏ",
+      "done": true
+    },
+    {
+      "t": "Verify bằng SỐ, đừng đoán",
+      "done": true
+    },
+    {
+      "t": "Sửa gốc ở hàm chung, không vá từng caller",
+      "done": false
+    }
+  ],
+  "nodes": [
+    {
+      "id": "s1",
+      "type": "start",
+      "label": "",
+      "explain": "",
+      "step": 0,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p2",
+      "type": "process",
+      "label": "Lên plan",
+      "explain": "Hiểu đủ vấn đề, chốt phạm vi trước khi code.",
+      "step": 1,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p3",
+      "type": "process",
+      "label": "Dựng nhỏ từng bước",
+      "explain": "Cắt thành bước nhỏ độc lập, verify được.",
+      "step": 2,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p4",
+      "type": "process",
+      "label": "Verify bằng số",
+      "explain": "Đo bằng query/con số trước khi tin giả thuyết.",
+      "step": 3,
+      "color": "#cfe3b2",
+      "x": null,
+      "y": null,
+      "notes": [
+        {
+          "t": "Đo query ad-hoc TRƯỚC khi chạy full report",
+          "done": false
+        },
+        {
+          "t": "Khớp số rồi mới export",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "d5",
+      "type": "decision",
+      "label": "Gặp khó / có bug?",
+      "explain": "Khác dự đoán / lỗi → rẽ debug.",
+      "step": 4,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": [
+        {
+          "t": "2 nguồn 'phải giống mà khác' = khác grain",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "p6",
+      "type": "process",
+      "label": "Debug top-down",
+      "explain": "Khoanh tầng bằng bằng chứng, sửa GỐC.",
+      "step": 5,
+      "color": "#e8b3b0",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p7",
+      "type": "process",
+      "label": "Code review",
+      "explain": "Soi lại bằng góc nhìn khác.",
+      "step": 6,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p8",
+      "type": "process",
+      "label": "Ship: commit + push",
+      "explain": "Commit gọn, push nhánh.",
+      "step": 7,
+      "color": "#cbbae6",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "e9",
+      "type": "end",
+      "label": "",
+      "explain": "",
+      "step": 8,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "s1",
+      "target": "p2",
+      "label": ""
+    },
+    {
+      "source": "p2",
+      "target": "p3",
+      "label": ""
+    },
+    {
+      "source": "p3",
+      "target": "p4",
+      "label": ""
+    },
+    {
+      "source": "p4",
+      "target": "d5",
+      "label": ""
+    },
+    {
+      "source": "d5",
+      "target": "p6",
+      "label": "có (true)"
+    },
+    {
+      "source": "p6",
+      "target": "p4",
+      "label": "đo lại ↺"
+    },
+    {
+      "source": "d5",
+      "target": "p7",
+      "label": "không (false)"
+    },
+    {
+      "source": "p7",
+      "target": "p8",
+      "label": ""
+    },
+    {
+      "source": "p8",
+      "target": "e9",
+      "label": ""
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "title": "Lên plan",
+      "body": "Bắt đầu từ hiểu vấn đề, chốt phạm vi.",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 2,
+      "title": "Cắt nhỏ",
+      "body": "Chia thành bước nhỏ, mỗi bước tự verify được.",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 3,
+      "title": "Verify bằng số",
+      "body": "Mọi kết luận phải có 1 phép đo chứng minh.",
+      "note": "Đừng giả định — kể cả khi 'chắc chắn'.",
+      "note_type": "warn",
+      "badge": ""
+    },
+    {
+      "n": 4,
+      "title": "Gặp khó?",
+      "body": "Khác dự đoán / lỗi / 2 nguồn lệch → rẽ debug.",
+      "note": "",
+      "note_type": "info",
+      "badge": "VẤN ĐỀ"
+    },
+    {
+      "n": 5,
+      "title": "Debug top-down",
+      "body": "Khoanh tầng bằng bằng chứng rồi mới zoom; sửa gốc.",
+      "note": "Fix xong → quay lại verify.",
+      "note_type": "info",
+      "badge": ""
+    },
+    {
+      "n": 6,
+      "title": "Review",
+      "body": "Đưa code, đừng đưa kết luận.",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 7,
+      "title": "Ship",
+      "body": "Commit gọn theo nhóm, push nhánh.",
+      "note": "",
+      "note_type": "info",
+      "badge": "GIẢI PHÁP"
+    },
+    {
+      "n": 8,
+      "title": "Xong",
+      "body": "Tính năng lên nhánh, đã verify bằng số. 🎉",
+      "note": "",
+      "note_type": "info",
+      "badge": "GIẢI PHÁP"
+    }
+  ],
+  "arrows": [],
+  "groups": [
+    {
+      "id": "g_dev",
+      "label": "Vòng phát triển",
+      "explain": "Dựng → verify → gặp khó → debug rồi quay lại verify. Lặp tới khi sạch bug.",
+      "color": "#8c9a3c",
+      "pad": 26,
+      "x": null,
+      "y": null,
+      "w": null,
+      "h": null,
+      "members": [
+        "p3",
+        "p4",
+        "d5",
+        "p6"
+      ]
+    }
+  ]
+}

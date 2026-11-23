@@ -1,0 +1,201 @@
+{
+  "id": "while-loop-demo",
+  "title": "Vòng lặp while: duyệt danh sách",
+  "kind": "flow",
+  "visibility": "private",
+  "doc_md": "",
+  "group": "Hướng dẫn chung",
+  "subtitle": "Khởi tạo → kiểm tra điều kiện → thân lặp → tăng biến → quay lại điều kiện → xong.",
+  "duration": "thuật toán",
+  "level": "Demo",
+  "learn": [
+    "Vòng lặp = một cạnh QUAY NGƯỢC về điều kiện",
+    "Điều kiện sai thì mới thoát ra",
+    "Thân lặp gom thành 1 nhóm cho dễ nhìn"
+  ],
+  "notes": [],
+  "nodes": [
+    {
+      "id": "s1",
+      "type": "start",
+      "label": "",
+      "explain": "",
+      "step": 0,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p2",
+      "type": "process",
+      "label": "i = 0",
+      "explain": "Khởi tạo biến đếm trước khi vào vòng lặp.",
+      "step": 1,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "d3",
+      "type": "decision",
+      "label": "i < n ?",
+      "explain": "Điều kiện lặp. Còn đúng thì chạy thân; sai thì thoát.",
+      "step": 2,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p4",
+      "type": "process",
+      "label": "Xử lý phần tử thứ i",
+      "explain": "Thân vòng lặp — làm việc với arr[i].",
+      "step": 3,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p5",
+      "type": "process",
+      "label": "i = i + 1",
+      "explain": "Tăng biến đếm rồi QUAY LẠI kiểm tra điều kiện.",
+      "step": 4,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p6",
+      "type": "process",
+      "label": "Xong — đã duyệt hết",
+      "explain": "Thoát vòng lặp khi i >= n.",
+      "step": 5,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "e7",
+      "type": "end",
+      "label": "",
+      "explain": "",
+      "step": 6,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "s1",
+      "target": "p2",
+      "label": ""
+    },
+    {
+      "source": "p2",
+      "target": "d3",
+      "label": ""
+    },
+    {
+      "source": "d3",
+      "target": "p4",
+      "label": "còn (i<n)"
+    },
+    {
+      "source": "p4",
+      "target": "p5",
+      "label": ""
+    },
+    {
+      "source": "p5",
+      "target": "d3",
+      "label": "lặp lại ↺"
+    },
+    {
+      "source": "d3",
+      "target": "p6",
+      "label": "hết (i>=n)"
+    },
+    {
+      "source": "p6",
+      "target": "e7",
+      "label": ""
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "title": "Khởi tạo",
+      "body": "Đặt i = 0 trước khi vào vòng lặp.",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 2,
+      "title": "Kiểm tra điều kiện",
+      "body": "i < n còn đúng không?\nĐúng → chạy thân. Sai → thoát ra 'Xong'.",
+      "note": "",
+      "note_type": "info",
+      "badge": "ĐIỀU KIỆN"
+    },
+    {
+      "n": 3,
+      "title": "Thân lặp",
+      "body": "Xử lý phần tử thứ i (arr[i]).",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 4,
+      "title": "Tăng biến + quay lại",
+      "body": "i = i + 1 rồi QUAY NGƯỢC về điều kiện.\nChính cạnh quay ngược này tạo thành vòng lặp.",
+      "note": "Thiếu bước tăng biến → lặp vô hạn.",
+      "note_type": "warn",
+      "badge": ""
+    },
+    {
+      "n": 5,
+      "title": "Thoát",
+      "body": "Khi i >= n, điều kiện sai → ra khỏi vòng lặp.",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 6,
+      "title": "Kết thúc",
+      "body": "Đã duyệt hết danh sách. 🎉",
+      "note": "",
+      "note_type": "info",
+      "badge": "GIẢI PHÁP"
+    }
+  ],
+  "arrows": [],
+  "groups": [
+    {
+      "id": "g_loop",
+      "label": "Thân vòng lặp",
+      "explain": "Phần chạy lặp đi lặp lại: xử lý phần tử rồi tăng i. Mỗi vòng quay lại kiểm tra 'i < n'. Khi i >= n thì thoát.",
+      "color": "#4e9a5f",
+      "pad": 26,
+      "x": null,
+      "y": null,
+      "w": null,
+      "h": null,
+      "members": [
+        "p4",
+        "p5"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Feature Flow</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 7 L24 16 L6 25 L11 16 Z' fill='%23c0603e' transform='rotate(-22 16 16)'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="static/style.css?v=87" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-edgehandles@4.0.1/cytoscape-edgehandles.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/turndown/7.2.0/turndown.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/turndown-plugin-gfm@1.0.2/dist/turndown-plugin-gfm.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo"><svg width="20" height="20" viewBox="0 0 32 32" style="vertical-align:-4px"><path d="M6 7 L24 16 L6 25 L11 16 Z" fill="#c0603e" transform="rotate(-22 16 16)"/></svg></span> Feature <b>Flow</b></div>
+  <span class="spacer"></span>
+  <label class="switch"><input type="checkbox" id="editMode" /> <span>✎ Chỉnh sửa</span></label>
+  <button id="btnShare" class="btn ghost">🔗 Chia sẻ</button>
+  <button id="btnSave" class="btn solid" disabled>💾 Lưu</button>
+</header>
+
+<div class="app">
+  <!-- LEFT: danh sách luồng -->
+  <aside class="sidebar">
+    <button id="btnGuideBack" class="btn ghost full guide-only">← Về Feature Flow</button>
+    <div class="side-head"><span class="only-normal">📁 Luồng <span id="flowCount" class="pill"></span></span><span class="guide-only">📖 Hướng dẫn</span></div>
+    <ul id="flowList" class="flow-list"></ul>
+    <button id="btnNewFlow" class="btn ghost full">+ Thêm mới</button>
+    <button id="btnShowHidden" class="btn ghost full hidden"></button>
+    <div class="side-sep"></div>
+    <button id="btnExportMd" class="btn ghost full">⬇ Xuất Markdown</button>
+    <button id="btnImportMd" class="btn ghost full">⬆ Nhập Markdown</button>
+    <input id="mdFile" type="file" accept=".md,.markdown,text/markdown" class="hidden" />
+    <div class="side-sep"></div>
+    <button id="btnGuide" class="btn ghost full">📖 Hướng dẫn sử dụng</button>
+  </aside>
+
+  <!-- CENTER: canvas -->
+  <section class="center">
+    <div class="lesson-head">
+      <div class="lh-left">
+        <h1 id="flowTitle">—</h1>
+        <p id="flowSub" class="sub"></p>
+      </div>
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="canvas-wrap">
+      <div class="canvas-tools">
+        <button id="btnDraw" class="btn chip-btn hidden" title="Kéo từ khối này sang khối kia để nối">✛ Kéo nối</button>
+        <button id="btnZoomIn" class="btn chip-btn icon" title="Zoom vào">➕</button>
+        <button id="btnZoomOut" class="btn chip-btn icon" title="Zoom ra">➖</button>
+        <button id="btnFit" class="btn chip-btn icon" title="Vừa khung">⤢</button>
+        <button id="btnFlow" class="btn chip-btn on" title="Bật/tắt mũi tên chạy theo chiều đi">✦ Dừng chảy</button>
+        <button id="btnFormat" class="btn chip-btn" title="Tự sắp xếp lại cho gọn, hết chồng chéo">⌗ Sắp xếp</button>
+        <button id="btnMax" class="btn chip-btn" title="Phóng to toàn màn hình (Esc để thoát)">⛶ Phóng to</button>
+        <button id="btnPresent" class="btn solid">▶ Trình chiếu</button>
+        <button id="btnReplay" class="btn chip-btn">↺ Phát lại</button>
+        <button id="btnPlay" class="btn chip-btn">⏯ Phát / Dừng</button>
+      </div>
+      <div id="cy"></div>
+      <div id="groupRubber" class="group-rubber hidden"></div>
+      <div id="nodeNoteBox" class="node-note-box hidden">
+        <input id="nnInput" type="text" placeholder="Ghi chú cho khối…" />
+        <button id="nnOk" class="nn-ok" title="Lưu (Enter)">✓</button>
+        <button id="nnCancel" class="nn-cancel" title="Hủy (Esc)">✕</button>
+      </div>
+      <div id="nodePop" class="node-pop hidden">
+        <button id="popClose" class="pop-close" title="Đóng">✕</button>
+        <div class="pop-badge" id="popBadge"></div>
+        <div class="pop-title" id="popTitle"></div>
+        <div class="pop-body" id="popBody"></div>
+        <div class="pop-notes" id="popNotes"></div>
+      </div>
+      <div class="legend">
+        <span><i class="sw start"></i> bắt đầu</span>
+        <span><i class="sw process"></i> bước</span>
+        <span><i class="sw decision"></i> rẽ nhánh</span>
+      </div>
+    </div>
+
+    <div class="tracker">
+      <div class="tracker-head">TRONG LUỒNG NÀY <span id="trackerCount"></span></div>
+      <div id="trackerSteps" class="tracker-steps"></div>
+    </div>
+
+    <!-- DOC: tài liệu / blog (kind=doc) -->
+    <div id="doc-wrap" class="hidden">
+      <div id="doc-view" class="doc-view"></div>
+      <div id="doc-editor" class="doc-editor hidden">
+        <div id="docToolbar" class="doc-toolbar">
+          <button data-cmd="h1" title="Tiêu đề lớn">H1</button>
+          <button data-cmd="h2" title="Tiêu đề vừa">H2</button>
+          <button data-cmd="h3" title="Tiêu đề nhỏ">H3</button>
+          <button data-cmd="p" title="Văn bản thường">¶</button>
+          <span class="tb-sep"></span>
+          <button data-cmd="bold" title="Đậm"><b>B</b></button>
+          <button data-cmd="italic" title="Nghiêng"><i>I</i></button>
+          <span class="tb-sep"></span>
+          <button data-cmd="ul" title="Danh sách">• ─</button>
+          <button data-cmd="ol" title="Danh sách số">1.─</button>
+          <button data-cmd="quote" title="Trích dẫn">❝</button>
+          <button data-cmd="code" title="Khối code">&lt;/&gt;</button>
+          <button data-cmd="table" title="Chèn bảng">▦ Bảng</button>
+          <button data-cmd="link" title="Chèn link">🔗</button>
+        </div>
+        <div id="doc-rich" class="doc-rich" contenteditable="true" spellcheck="false"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: kể chuyện từng bước / sửa -->
+  <aside class="right">
+    <!-- READ -->
+    <div id="panel-read">
+      <div class="r-card">
+        <div class="step-top"><span id="stepIdx" class="muted">BƯỚC —</span>
+          <span id="stepBadge" class="badge hidden"></span></div>
+        <h2 id="stepTitle">Chọn một luồng</h2>
+        <div id="stepBody" class="prose"></div>
+        <div id="stepNote" class="callout hidden"></div>
+        <div class="nav">
+          <button id="btnPrev" class="btn ghost">← Quay lại</button>
+          <button id="btnNext" class="btn solid">Tiếp →</button>
+        </div>
+        <div class="kbd-hint">⌨ <kbd>←</kbd><kbd>→</kbd> bước · <kbd>R</kbd> phát lại · <kbd>Space</kbd> dừng</div>
+      </div>
+      <div class="r-card learn">
+        <div class="learn-head">GHI CHÚ</div>
+        <ul id="noteList" class="note-list"></ul>
+        <button id="btnAddNote" class="btn ghost sm note-add">+ Thêm ghi chú</button>
+      </div>
+      <div class="r-card hidden" id="doc-toc-card">
+        <div class="learn-head">NỘI DUNG</div>
+        <ul id="doc-toc" class="doc-toc"></ul>
+      </div>
+    </div>
+
+    <!-- EDIT -->
+    <div id="panel-edit" class="hidden">
+      <div class="edit-section">
+        <div class="edit-title">Thông tin luồng</div>
+        <label class="fld">Tên<input id="e-ftitle" type="text" /></label>
+        <label class="fld">Nhóm / tính năng (folder)<input id="e-fgroup" type="text" placeholder="vd: Thanh toán" /></label>
+        <label class="fld">Mô tả ngắn<input id="e-fsub" type="text" /></label>
+      </div>
+      <div class="edit-section">
+        <div class="edit-title">Thêm khối</div>
+        <div class="edit-row">
+          <button class="btn ghost sm" data-add="process">+ Bước</button>
+          <button class="btn ghost sm" data-add="decision">+ Nhánh</button>
+          <button class="btn ghost sm" data-add="start">+ Start</button>
+          <button class="btn ghost sm" data-add="end">+ End</button>
+        </div>
+        <div class="edit-row">
+          <button id="btnLink" class="btn ghost sm">🔗 Nối 2 khối</button>
+          <button id="btnDelete" class="btn danger sm">🗑 Xóa chọn</button>
+        </div>
+        <div id="editHint" class="muted sm"></div>
+      </div>
+
+      <div id="nodeEditor" class="edit-section hidden">
+        <div class="edit-title">Khối đang chọn</div>
+        <label class="fld">Nhãn<input id="e-label" type="text" /></label>
+        <label class="fld">Bước (reveal)<input id="e-step" type="number" min="0" /></label>
+        <label class="fld">Định nghĩa / giải thích (hiện khi bấm)<textarea id="e-explain" rows="5"></textarea></label>
+        <div class="fld">Màu khối
+          <div class="color-row">
+            <input id="e-color" type="color" />
+            <span class="swatches" id="colorSwatches"></span>
+            <button id="btnColorReset" class="btn ghost sm" title="Về màu mặc định theo loại">↺</button>
+          </div>
+        </div>
+        <label class="fld">Thuộc nhóm<select id="e-nodegroup"></select></label>
+      </div>
+
+      <div id="groupEditor" class="edit-section hidden">
+        <div class="edit-title">Nhóm đang chọn</div>
+        <label class="fld">Tên nhóm<input id="g-name" type="text" /></label>
+        <label class="fld">Mô tả (hiện khi bấm lúc xem)<textarea id="g-explain" rows="4"></textarea></label>
+        <div class="fld">Màu nhóm
+          <div class="color-row">
+            <input id="g-color" type="color" />
+            <span class="swatches" id="gColorSwatches"></span>
+          </div>
+        </div>
+        <div class="fld">Kích thước khung
+          <div class="edit-row">
+            <button id="g-smaller" class="btn ghost sm" title="Thu nhỏ khung">− nhỏ lại</button>
+            <button id="g-bigger" class="btn ghost sm" title="Nới rộng khung">＋ to ra</button>
+          </div>
+        </div>
+        <div class="muted sm">Kéo <b>tay cầm xanh ở 4 góc</b> để resize khung tự do. Kéo giữa khung để di chuyển cả cụm.</div>
+        <button id="g-del" class="btn danger sm">🗑 Xóa nhóm (giữ khối)</button>
+      </div>
+
+      <div id="edgeEditor" class="edit-section hidden">
+        <div class="edit-title">Mũi tên đang chọn</div>
+        <div class="muted sm" id="e-edgepath" style="margin-bottom:6px"></div>
+        <label class="fld">Nhãn nhánh<input id="e-elabel" type="text" placeholder="có (true) / không (false)…" /></label>
+        <button id="btnDelEdge" class="btn danger sm">🗑 Xóa mũi tên này</button>
+      </div>
+
+      <div id="stepEditor" class="edit-section">
+        <div class="edit-title">Nội dung bước <span id="e-stepn" class="pill"></span></div>
+        <label class="fld">Tiêu đề<input id="e-stitle" type="text" /></label>
+        <label class="fld">Nội dung<textarea id="e-sbody" rows="6"></textarea></label>
+        <label class="fld">Ghi chú (callout)<input id="e-snote" type="text" /></label>
+        <label class="fld">Badge<input id="e-sbadge" type="text" placeholder="VẤN ĐỀ / GIẢI PHÁP" /></label>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<footer class="footer">
+  <span class="f-brand"><svg width="16" height="16" viewBox="0 0 32 32" style="vertical-align:-3px"><path d="M6 7 L24 16 L6 25 L11 16 Z" fill="#c0603e" transform="rotate(-22 16 16)"/></svg> Feature <b>Flow</b></span>
+  <span class="f-mid">Vẽ luồng &amp; viết tài liệu — chạy local, lưu JSON</span>
+  <span class="f-right">© 2026 · nội bộ</span>
+</footer>
+
+<div id="ctxmenu" class="ctxmenu hidden"></div>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-card">
+    <div id="modalMsg" class="modal-msg"></div>
+    <input id="modalInput" class="modal-input hidden" type="text" />
+    <div id="modalFields" class="modal-fields hidden"></div>
+    <div class="modal-actions">
+      <button id="modalCancel" class="btn ghost">Hủy</button>
+      <button id="modalOk" class="btn solid">OK</button>
+    </div>
+    <div id="modalChoices" class="modal-actions hidden"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script src="static/js/01-core.js?v=87"></script>
+<script src="static/js/02-canvas.js?v=87"></script>
+<script src="static/js/03-view.js?v=87"></script>
+<script src="static/js/04-edit.js?v=87"></script>
+<script src="static/js/05-data.js?v=87"></script>
+<script src="static/js/06-wiring.js?v=87"></script>
+</body>
+</html>

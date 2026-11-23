@@ -1,0 +1,18 @@
+{
+  "id": "blog-debug-pipeline",
+  "title": "Debug pipeline dữ liệu",
+  "kind": "doc",
+  "visibility": "private",
+  "doc_md": "# Debug một pipeline dữ liệu: tư duy & checklist\n\n> Report chỉ cho bạn *triệu chứng*. Việc của bạn là tìm *nguyên nhân gốc* — và sửa đúng một chỗ mà mọi caller đi qua.\n\nBài viết tóm tắt cách mình khoanh vùng và sửa lỗi trong pipeline **Bronze → Silver → Gold**, rút ra từ những lần \"hôm qua đúng, hôm nay sai\".\n\n## 1. Hiểu vấn đề trước khi cắt nhỏ\n\nĐừng nhảy ngay vào chi tiết. Trả lời 3 câu hỏi:\n\n1. Lỗi xuất hiện ở **tầng nào** (ingest / transform / report)?\n2. Nó **đổi từ bao giờ** — có khớp một lần deploy / đổi nguồn không?\n3. Có phải **2 nguồn \"phải giống mà lại khác\"** không?\n\n> Mâu thuẫn 2 nguồn gần như luôn là dấu hiệu **khác GRAIN hoặc khác TẦNG**. Soi cả hai trước khi sửa.\n\n## 2. Verify bằng SỐ, đừng đoán\n\nMọi kết luận về data phải có **một phép đo** chứng minh — kể cả khi \"chắc chắn\".\n\n```sql\n-- đo con số đích (vài giây) TRƯỚC khi chạy full report (10 phút)\nSELECT report_date,\n       COUNT(*)                          AS n_got,\n       MAX(source_row_count)             AS n_exp\nFROM   iceberg.bronze.some_table\nGROUP  BY report_date\nORDER  BY report_date DESC\nLIMIT  7;\n```\n\nNếu `n_got < n_exp` → đã nạp đứt giữa chừng. Đó là **bằng chứng**, không phải phỏng đoán.\n\n## 3. Khoanh tầng top-down\n\nChia từ **vấn đề TO → nhỏ dần**, mỗi bước khẳng định bằng bằng chứng:\n\n- **OOM?** Pod Python hay Trino heap? → đọc log → rồi mới tới query nào.\n- **Thiếu dòng?** So `count(*)` vs `source_row_count` theo ngày.\n- **Lệch số tiền?** Kiểm grain từng bảng (per-giao-dịch vs per-kỳ vs snapshot).\n\n### Mẹo nhỏ\n\n| Triệu chứng | Nghi ngờ đầu tiên | Cách đo |\n|---|---|---|\n| Số nhảy mỗi lần chạy | layout / thứ tự không ổn định | so 2 lần chạy liền |\n| Hôm qua đúng nay sai | 1 lần ingest / deploy | `git log` + đối chiếu ngày |\n| 2 báo cáo lệch | khác tầng / grain | đếm distinct khóa từng bên |\n\n## 4. Sửa GỐC, không sửa triệu chứng\n\nMột report đặt tên *triệu chứng*. Trước khi sửa, **grep mọi caller** của hàm bạn định đụng.\n\n```python\n# LAZY = ROOT: một guard ở hàm chung < vá ở mọi caller\ndef resolve_dpd(due_date, giao):\n    if due_date is None:\n        return 0                     # sửa một chỗ — mọi nhánh hưởng\n    return max(0, (giao - due_date).days)\n```\n\n> Vá đúng path mà ticket nói tới sẽ để lại mọi sibling-caller **vẫn hỏng**.\n\n## 5. Review → ship → deploy\n\n- **Review**: đưa *code*, đừng đưa *kết luận* — để người review nhìn độc lập.\n- **Ship**: commit gọn theo nhóm logic; không tự ý push khi chưa được bảo.\n- **Deploy**: build image + rollout; DAG mới mặc định **PAUSED** → nhớ unpause tay.\n\n---\n\n### Checklist rút gọn\n\n- [x] Khoanh được tầng hỏng bằng bằng chứng\n- [x] Có con số chứng minh nguyên nhân\n- [x] Sửa ở hàm chung (gốc)\n- [x] Xác nhận lại bằng số sau khi sửa\n\n*Happy debugging.* 🐛→✅\n",
+  "group": "Blog",
+  "subtitle": "Tư duy khoanh vùng + checklist",
+  "duration": "",
+  "level": "",
+  "learn": [],
+  "notes": [],
+  "nodes": [],
+  "edges": [],
+  "steps": [],
+  "arrows": [],
+  "groups": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": "huong-dan-flow",
+  "title": "Hướng dẫn: Sơ đồ flow",
+  "kind": "doc",
+  "visibility": "private",
+  "doc_md": "# Hướng dẫn: Sơ đồ flow\n\n> **Sơ đồ (flow)** là flowchart: các khối (bước / nhánh / start / end) nối bằng mũi tên, trình chiếu lần lượt, bấm khối hiện giải thích.\n\n## Sidebar như một cây thật\n\n- **+ Thêm mới** → chọn **📁 Folder** hoặc **⚙ Chức năng** (sơ đồ / tài liệu).\n- **Kéo-thả** một chức năng **vào folder** hoặc **ra vùng trống** để đưa ra ngoài.\n- Chuột phải để **🙈 ẩn** folder/file; nút **👁 Hiện mục đã ẩn** bật lại.\n- Mỗi luồng có **URL riêng** `#/<id>` — dán vào là vào thẳng.\n\n## Xem một sơ đồ\n\n- **▶ Trình chiếu** — chạy lần lượt từng bước, panel phải kể chuyện.\n- **← / →** hoặc thanh *TRONG LUỒNG NÀY* để nhảy bước.\n- **Bấm một khối** → chọn + hiện giải thích (giữ nguyên tỉ lệ zoom).\n- **⛶ Phóng to** · **⌗ Sắp xếp** (dàn gọn) · **⤢** vừa khung · **✦** mũi tên chảy.\n\n## Chỉnh sửa\n\nBật **✎ Chỉnh sửa** (góc phải) hoặc chuột phải nền → *Bật chỉnh sửa*.\n\n- **Thêm khối**: panel phải hoặc chuột phải nền.\n- **Nối 2 khối**: rê lên mép khối → kéo tay cầm sang khối kia; thả ra chỗ trống → **mũi tên vô danh**.\n- **Sửa khối**: bấm khối → nhãn, bước (reveal), giải thích, **màu khối**.\n- **Mũi tên**: bấm chọn; bấm đúp sửa nhãn; kéo 2 đầu nối lại.\n- **Hoàn tác/Làm lại** `Ctrl+Z` / `Ctrl+Y` · **Lưu** `Ctrl+S`.\n\n> Vị trí khối **đóng băng** khi kéo tay. Muốn dàn lại thì bấm **⌗ Sắp xếp**.\n\n## Nhóm (group box)\n\n- **Tạo**: chuột phải nền → *▭ Tạo nhóm* → **kéo khoanh vùng** các khối → đặt tên.\n- **Resize**: bấm khung → **4 tay cầm góc** → kéo phóng to / thu nhỏ.\n- **Di chuyển**: kéo giữa khung → cả cụm đi theo.\n- **Mô tả**: điền ở bảng; chế độ xem bấm khung sẽ hiện mô tả.\n\n## Ghi chú\n\n- **Ghi chú luồng**: khối *GHI CHÚ* bên phải (checklist tick được) — **+ Thêm ghi chú**, Enter thêm dòng.\n- **Ghi chú của khối**: chuột phải khối → *📝 Thêm ghi chú khối* → ô nhỏ cạnh khối, ✓ lưu / ✕ hủy. Một khối **nhiều ghi chú**, có **dấu ❗đỏ** (hoặc số) ở góc; hiện luôn trong panel *GHI CHÚ* (nhóm theo khối) và trong thẻ nổi khi phóng to.\n\n## Phím tắt\n\n| Phím | Tác dụng |\n|---|---|\n| `Ctrl+S` | Lưu |\n| `Ctrl+Z` / `Ctrl+Y` | Hoàn tác / Làm lại |\n| `← / →` | Bước trước / sau · `R` phát lại · `Space` chạy/dừng |\n| `Esc` | Thoát phóng to / hủy thao tác |\n\n---\n*Xem thêm: **Hướng dẫn: Viết tài liệu** và **Hướng dẫn: Dùng thư viện code**.*\n",
+  "group": "Hướng dẫn",
+  "subtitle": "Xem, chỉnh sửa, nhóm, ghi chú, trình chiếu",
+  "duration": "",
+  "level": "",
+  "learn": [],
+  "notes": [],
+  "nodes": [],
+  "edges": [],
+  "steps": [],
+  "arrows": [],
+  "groups": []
+}

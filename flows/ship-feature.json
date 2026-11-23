@@ -1,0 +1,258 @@
+{
+  "id": "ship-feature",
+  "title": "Quy trình ship một tính năng",
+  "kind": "flow",
+  "visibility": "private",
+  "doc_md": "",
+  "group": "Hướng dẫn chung",
+  "subtitle": "Từ ý tưởng → dựng → verify → gặp khó (debug loop) → review → ship → deploy.",
+  "duration": "tổng quan",
+  "level": "Nội bộ",
+  "learn": [
+    "Vì sao phải hiểu vấn đề TRƯỚC khi cắt nhỏ",
+    "Verify bằng SỐ thay vì đoán",
+    "Gặp khó thì khoanh tầng top-down, sửa gốc",
+    "Review → ship → deploy an toàn"
+  ],
+  "notes": [],
+  "nodes": [
+    {
+      "id": "s1",
+      "type": "start",
+      "label": "",
+      "explain": "",
+      "step": 0,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p2",
+      "type": "process",
+      "label": "Lên plan / brainstorm",
+      "explain": "Hiểu đủ vấn đề, chốt phạm vi. Chưa code vội.",
+      "step": 1,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p3",
+      "type": "process",
+      "label": "Dựng nhỏ từng bước",
+      "explain": "Cắt thành bước nhỏ độc lập, mỗi bước verify được.",
+      "step": 2,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p4",
+      "type": "process",
+      "label": "Verify bằng số",
+      "explain": "Đo bằng query/con số trước khi tin vào giả thuyết.",
+      "step": 3,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "d5",
+      "type": "decision",
+      "label": "Gặp khó / có bug?",
+      "explain": "Kết quả khác dự đoán, lỗi, 2 nguồn lệch nhau → rẽ debug.",
+      "step": 4,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p6",
+      "type": "process",
+      "label": "Debug top-down",
+      "explain": "Khoanh tầng bằng bằng chứng (log/số), tìm GỐC rồi mới sửa.",
+      "step": 5,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p7",
+      "type": "process",
+      "label": "Code review",
+      "explain": "Soi lại bằng góc nhìn khác; /code-review nếu cần.",
+      "step": 6,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p8",
+      "type": "process",
+      "label": "Ship: commit + push",
+      "explain": "Commit gọn theo nhóm, push nhánh.",
+      "step": 7,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "p9",
+      "type": "process",
+      "label": "Deploy: build image + rollout",
+      "explain": "Build image + bump phiên bản + rollout; xác nhận chạy thật.",
+      "step": 8,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    },
+    {
+      "id": "e10",
+      "type": "end",
+      "label": "",
+      "explain": "",
+      "step": 9,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "s1",
+      "target": "p2",
+      "label": ""
+    },
+    {
+      "source": "p2",
+      "target": "p3",
+      "label": ""
+    },
+    {
+      "source": "p3",
+      "target": "p4",
+      "label": ""
+    },
+    {
+      "source": "p4",
+      "target": "d5",
+      "label": ""
+    },
+    {
+      "source": "d5",
+      "target": "p6",
+      "label": "có (true)"
+    },
+    {
+      "source": "p6",
+      "target": "p4",
+      "label": "đo lại"
+    },
+    {
+      "source": "d5",
+      "target": "p7",
+      "label": "không (false)"
+    },
+    {
+      "source": "p7",
+      "target": "p8",
+      "label": ""
+    },
+    {
+      "source": "p8",
+      "target": "p9",
+      "label": ""
+    },
+    {
+      "source": "p9",
+      "target": "e10",
+      "label": ""
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "title": "Lên plan",
+      "body": "Bắt đầu từ việc hiểu vấn đề, không nhảy vào code.\nChốt phạm vi + điều đã loại trừ. Càng rõ ở đây, càng ít sửa sai về sau.",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 2,
+      "title": "Cắt nhỏ",
+      "body": "Chia tính năng thành các bước nhỏ, độc lập.\nMỗi bước phải tự verify được — đừng ôm cả cục.",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 3,
+      "title": "Verify bằng số",
+      "body": "Mọi kết luận về data phải có 1 phép đo chứng minh.\nĐo con số đích bằng query ad-hoc (vài giây) TRƯỚC khi chạy full.",
+      "note": "Đừng giả định — kể cả khi 'chắc chắn'.",
+      "note_type": "warn",
+      "badge": ""
+    },
+    {
+      "n": 4,
+      "title": "Gặp khó?",
+      "body": "Nếu kết quả khác dự đoán, có lỗi, hay 2 nguồn 'phải giống mà lại khác'\n→ đây là dấu hiệu khác tầng/grain. Rẽ sang debug.",
+      "note": "",
+      "note_type": "info",
+      "badge": "VẤN ĐỀ"
+    },
+    {
+      "n": 5,
+      "title": "Debug top-down",
+      "body": "Khoanh tầng hỏng bằng BẰNG CHỨNG trước (log, số), rồi mới zoom.\nSửa GỐC, không sửa triệu chứng — một guard ở hàm chung < vá mọi caller.",
+      "note": "Fix xong → quay lại verify bằng số.",
+      "note_type": "info",
+      "badge": ""
+    },
+    {
+      "n": 6,
+      "title": "Review",
+      "body": "Soi lại bằng góc nhìn độc lập. Đưa code, đừng đưa kết luận.",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 7,
+      "title": "Ship",
+      "body": "Commit gọn theo nhóm logic, push nhánh. Không tự ý push khi chưa được bảo.",
+      "note": "",
+      "note_type": "info",
+      "badge": "BƯỚC"
+    },
+    {
+      "n": 8,
+      "title": "Deploy",
+      "body": "Build image + bump phiên bản + rollout.\nJob/lịch chạy mới có thể bị tắt mặc định → nhớ bật lại.",
+      "note": "Deploy là bước dễ quên hậu kiểm — xong phải xác nhận chạy thật.",
+      "note_type": "warn",
+      "badge": ""
+    },
+    {
+      "n": 9,
+      "title": "Xong",
+      "body": "Tính năng đã lên prod và được xác nhận bằng số. 🎉",
+      "note": "",
+      "note_type": "info",
+      "badge": "GIẢI PHÁP"
+    }
+  ],
+  "arrows": [],
+  "groups": []
+}

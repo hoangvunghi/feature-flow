@@ -1,0 +1,18 @@
+{
+  "id": "huong-dan-docs",
+  "title": "Hướng dẫn: Viết tài liệu",
+  "kind": "doc",
+  "visibility": "private",
+  "doc_md": "# Hướng dẫn: Viết tài liệu\n\n> **Tài liệu / Blog** là trang viết kiểu Word. Gõ trực tiếp, bên dưới tự biên dịch ra Markdown để lưu — không cần biết cú pháp.\n\n## Tạo & soạn\n\n- Tạo: **+ Thêm mới** → **⚙ Chức năng** → **📄 Tài liệu**.\n- Bật **✎ Chỉnh sửa** → hiện **thanh công cụ**, gõ vào vùng soạn.\n- Bên phải render ngay + sinh **mục lục** từ các heading — bấm để nhảy tới.\n\n## Thanh công cụ\n\n- **H1 H2 H3 ¶** — tiêu đề / văn bản thường\n- **B** *I* — đậm / nghiêng · danh sách · ❝ trích dẫn\n- **`</>`** — khối code (Enter xuống dòng **trong** khối, bấm ¶ để thoát)\n- **🔗** — chèn link\n\n## Bảng\n\n- Nút **▦ Bảng** → một hộp điền **tiêu đề bảng + số cột + số dòng**.\n- **Tiêu đề cột** tự gõ; **Tab** nhảy ô (ô cuối → thêm hàng).\n- **Chuột phải** trong bảng → thêm/xóa hàng-cột; **bôi nhiều hàng/cột rồi xóa** như Word.\n- **Tiêu đề bảng** (caption) nằm dưới, **căn giữa + in nghiêng**.\n\n## Lưu & chia sẻ\n\n- **Lưu** `Ctrl+S` hoặc 💾.\n- **🔗 Chia sẻ**: Riêng tư / Công khai + copy link.\n- **⬇ Xuất / ⬆ Nhập Markdown** ở sidebar.\n\n---\n*Xem thêm: **Hướng dẫn: Sơ đồ flow**.*\n",
+  "group": "Hướng dẫn",
+  "subtitle": "Soạn kiểu Word, bảng, mục lục — không cần biết Markdown",
+  "duration": "",
+  "level": "",
+  "learn": [],
+  "notes": [],
+  "nodes": [],
+  "edges": [],
+  "steps": [],
+  "arrows": [],
+  "groups": []
+}
