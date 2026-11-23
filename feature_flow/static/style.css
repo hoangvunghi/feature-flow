@@ -60,7 +60,7 @@ body.guide-mode #btnGuide, body.guide-mode #mdFile, body.guide-mode .side-sep { 
 .btn.danger { background: var(--red); border-color: var(--red-ink); color: var(--red-ink); }
 .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; transform: none; }
 .btn.full { width: 100%; } .btn.sm { padding: 5px 10px; font-size: 12px; }
-.pill { font: 700 11px var(--mono); background: var(--purple); color: #45336b;
+.pill { font: 700 11px var(--mono); background: var(--paper2); color: var(--ink);
   border-radius: 20px; padding: 2px 8px; }
 
 /* ---------- app grid ---------- */
@@ -126,15 +126,14 @@ body.guide-mode #btnGuide, body.guide-mode #mdFile, body.guide-mode .side-sep { 
 @media (max-width: 1100px) { .lesson-head { flex-direction: column; gap: 4px; } .chips { justify-content: flex-start; max-width: none; margin-top: 5px; } }
 .chip { font: 700 11px var(--mono); border: 2px solid var(--line); background: var(--card2);
   padding: 3px 9px; border-radius: 20px; display: inline-flex; gap: 5px; }
-.chip.amber { background: var(--amber); border-color: #d8b878; color: var(--amber-ink); }
+.chip.amber { background: var(--amber); border-color: var(--line); color: var(--amber-ink); }
 .chip.green { background: var(--green); border-color: var(--green-d); color: var(--green-ink); }
-.chip.purple { background: var(--purple); border-color: #b9a7dd; color: #45336b; }
+.chip.purple { background: var(--paper2); border-color: var(--line); color: var(--ink); }
 
 .canvas-wrap.maximized { position: fixed; inset: 0; z-index: 60; border-radius: 0; min-height: 0; }
 .canvas-wrap { position: relative; flex: 1; min-height: 420px; border: 2px solid var(--line);
-  border-radius: 18px; overflow: hidden; background:
-    repeating-linear-gradient(45deg, #c0cca8 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(-45deg, #c0cca8 0 1px, transparent 1px 34px), var(--paper); }
+  border-radius: 18px; overflow: hidden; background:   /* lưới chấm nhạt theo sắc độ (thay lưới chéo rối mắt) */
+    radial-gradient(color-mix(in srgb, var(--line) 70%, transparent) 1.1px, transparent 1.6px) 0 0 / 24px 24px, var(--paper); }
 #cy { position: absolute; inset: 0; border-radius: 20px; overflow: hidden; }
 .group-rubber { position: absolute; z-index: 7; pointer-events: none; border: 2px dashed #8a6fd0;
   background: rgba(138, 111, 208, 0.12); border-radius: 10px; }
@@ -174,7 +173,7 @@ body.guide-mode #btnGuide, body.guide-mode #mdFile, body.guide-mode .side-sep { 
   font: 700 12px var(--mono); }
 .legend .sw { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px;
   border: 1.5px solid var(--line-ink); vertical-align: -1px; }
-.sw.start { background: var(--green); } .sw.process { background: var(--blue); } .sw.decision { background: var(--amber); }
+.sw.start { background: var(--green); } .sw.process { background: var(--card2); } .sw.decision { background: var(--amber); }   /* khớp màu khối trên canvas (01-core FILL) */
 
 /* bottom tracker — nhỏ nhắn, thanh mảnh */
 .tracker { border: 2px solid var(--line); border-radius: 14px; background: var(--card); padding: 7px 14px 8px; }

@@ -10,6 +10,7 @@ const THEMES = [["", "🍃 Thanh Trà Trong Gió"], ["net-co-dong-duong", "🏮 
   sel.addEventListener("change", () => {
     if (sel.value) document.documentElement.dataset.theme = sel.value; else delete document.documentElement.dataset.theme;
     try { localStorage.setItem("ff-theme", sel.value); } catch (e) { /* chế độ riêng tư: chỉ đổi phiên này */ }
+    if (cy) cy.style(stylesheet());   // sơ đồ (canvas) đọc lại màu theo sắc độ mới
   });
 })();
 $("#btnNext").addEventListener("click", () => goIdx(idx + 1));
