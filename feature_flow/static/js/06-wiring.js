@@ -1,6 +1,6 @@
 // ---------- wiring ----------
 // 8 sắc độ giao diện (CSS: [data-theme=…] cuối style.css). Lưu theo trình duyệt.
-const THEMES = [["", "🍃 Thanh Trà Trong Gió"], ["net-co-dong-duong", "🏮 Nét Cổ Đông Dương"],
+const THEMES = [["", "🍃 Thanh Trà Trong Gió"], ["fincon", "🔷 Fincon"], ["net-co-dong-duong", "🏮 Nét Cổ Đông Dương"],
   ["hoang-hon-mua-thu", "🍂 Hoàng Hôn Mùa Thu"], ["phim-co-dien", "🎞 Phim Cổ Điển"], ["cuoi-he-dau-thu", "🌿 Cuối Hè Đầu Thu"],
   ["xanh-co-dien", "💧 Xanh Cổ Điển"], ["dao-pho-ngay-nang", "☀️ Dạo Phố Ngày Nắng"], ["pho-phap", "🥐 Đường Phố Pháp"]];
 (() => {

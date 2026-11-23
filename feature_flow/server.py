@@ -119,6 +119,9 @@ def _render_index() -> str:
         html = _LOGO_SVG.sub(f'<img src="{logo}" alt="" style="height:1.25em;vertical-align:-0.25em">', html)
     if fav := _brand_file("favicon", ("svg", "png", "ico")):
         html = re.sub(r'<link rel="icon" href="[^"]*" />', f'<link rel="icon" href="{fav}" />', html, count=1)
+    # sắc độ mặc định (vd "fincon") — chỉ nhận chữ thường/số/gạch, người dùng tự chọn khác thì đè
+    if re.fullmatch(r"[a-z0-9-]{1,40}", theme := str(cfg.get("theme", ""))):
+        html = html.replace('<html lang="vi">', f'<html lang="vi" data-theme="{theme}">', 1)
     if css := _brand_file("brand", ("css",)):
         html = html.replace("</head>", f'<link rel="stylesheet" href="{css}" />\n</head>', 1)
     return html

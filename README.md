@@ -75,7 +75,7 @@ sang chỗ khác. File nào có thì đè, thiếu thì giữ mặc định:
 
 ```
 feature-flow/brand/
-  brand.json     {"name": "Acme Flow"}        → tên ở header/footer + tiêu đề tab
+  brand.json     {"name": "Acme Flow", "theme": "fincon"}  → tên header/footer/tab + sắc độ mặc định
   logo.svg       (hoặc .png/.jpg/.webp)        → logo header + footer
   favicon.svg    (hoặc .png/.ico)              → icon tab trình duyệt
   brand.css      :root{ --forest:#123456; … }  → đè màu (xem biến :root cuối style.css)

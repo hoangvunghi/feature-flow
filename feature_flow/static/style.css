@@ -422,6 +422,13 @@ kbd { font: 700 11px var(--mono); border: 1.5px solid var(--line); border-bottom
   --green:#FCE7CF; --green-d:#776450; --green-ink:#703C12;
   --amber:#FBDAB5; --amber-ink:#6D5C4A; --tint:#fcf0e2; --tint2:#f6d6b2; }
 
+[data-theme="fincon"]{ /* Fincon — 2 màu logo: navy 122C4E + xanh trời 25ADE0 */
+  --chrome:#122c4e; --chrome-ink:#eaf4fb; --lime:#25ade0;
+  --paper:#eef4f9; --paper2:#dde9f2; --card:#f6f9fc; --card2:#fbfdfe;
+  --ink:#122c4e; --ink-soft:#3d5a7a; --line:#b9d3e6; --line-ink:#122c4e;
+  --green:#cbe8f6; --green-d:#1a6f99; --green-ink:#122c4e;
+  --amber:#9fd8f0; --amber-ink:#0d2340; --tint:#e7f4fb; --tint2:#bfe4f5; }
+
 /* nút chọn sắc độ trên header */
 .theme-pick { font: 600 12.5px var(--sans); color: var(--ink); background: var(--card2);
   border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; cursor: pointer; max-width: 170px; }
