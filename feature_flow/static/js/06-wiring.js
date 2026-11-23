@@ -1,4 +1,17 @@
 // ---------- wiring ----------
+// 8 sắc độ giao diện (CSS: [data-theme=…] cuối style.css). Lưu theo trình duyệt.
+const THEMES = [["", "🍃 Thanh Trà Trong Gió"], ["net-co-dong-duong", "🏮 Nét Cổ Đông Dương"],
+  ["hoang-hon-mua-thu", "🍂 Hoàng Hôn Mùa Thu"], ["phim-co-dien", "🎞 Phim Cổ Điển"], ["cuoi-he-dau-thu", "🌿 Cuối Hè Đầu Thu"],
+  ["xanh-co-dien", "💧 Xanh Cổ Điển"], ["dao-pho-ngay-nang", "☀️ Dạo Phố Ngày Nắng"], ["pho-phap", "🥐 Đường Phố Pháp"]];
+(() => {
+  const sel = $("#themePick"), cur = document.documentElement.dataset.theme || "";
+  THEMES.forEach(([v, label]) => { const o = document.createElement("option"); o.value = v; o.textContent = label; sel.appendChild(o); });
+  sel.value = THEMES.some(([v]) => v === cur) ? cur : "";
+  sel.addEventListener("change", () => {
+    if (sel.value) document.documentElement.dataset.theme = sel.value; else delete document.documentElement.dataset.theme;
+    try { localStorage.setItem("ff-theme", sel.value); } catch (e) { /* chế độ riêng tư: chỉ đổi phiên này */ }
+  });
+})();
 $("#btnNext").addEventListener("click", () => goIdx(idx + 1));
 $("#btnPrev").addEventListener("click", () => goIdx(idx - 1));
 $("#btnReplay").addEventListener("click", () => goIdx(0));

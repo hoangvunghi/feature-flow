@@ -7,7 +7,9 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 7 L24 16 L6 25 L11 16 Z' fill='%23c0603e' transform='rotate(-22 16 16)'/></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="static/style.css?v=88" />
+<link rel="stylesheet" href="static/style.css?v=89" />
+<!-- áp sắc độ đã chọn TRƯỚC khi vẽ trang (tránh nháy màu mặc định) -->
+<script>try { var t = localStorage.getItem("ff-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
@@ -21,6 +23,7 @@
 <header class="topbar">
   <div class="brand"><span class="logo"><svg width="20" height="20" viewBox="0 0 32 32" style="vertical-align:-4px"><path d="M6 7 L24 16 L6 25 L11 16 Z" fill="#c0603e" transform="rotate(-22 16 16)"/></svg></span> Feature <b>Flow</b></div>
   <span class="spacer"></span>
+  <select id="themePick" class="theme-pick" title="Đổi sắc độ giao diện"></select>
   <label class="switch"><input type="checkbox" id="editMode" /> <span>✎ Chỉnh sửa</span></label>
   <button id="btnShare" class="btn ghost">🔗 Chia sẻ</button>
   <button id="btnSave" class="btn solid" disabled>💾 Lưu</button>
@@ -241,11 +244,11 @@
 </div>
 
 <div id="toast" class="toast hidden"></div>
-<script src="static/js/01-core.js?v=88"></script>
-<script src="static/js/02-canvas.js?v=88"></script>
-<script src="static/js/03-view.js?v=88"></script>
-<script src="static/js/04-edit.js?v=88"></script>
-<script src="static/js/05-data.js?v=88"></script>
-<script src="static/js/06-wiring.js?v=88"></script>
+<script src="static/js/01-core.js?v=89"></script>
+<script src="static/js/02-canvas.js?v=89"></script>
+<script src="static/js/03-view.js?v=89"></script>
+<script src="static/js/04-edit.js?v=89"></script>
+<script src="static/js/05-data.js?v=89"></script>
+<script src="static/js/06-wiring.js?v=89"></script>
 </body>
 </html>
