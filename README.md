@@ -62,6 +62,22 @@ application = Starlette(routes=[
 
 **B. Reverse proxy** (nginx / Kubernetes Ingress) — chạy riêng 1 service, proxy path `/feature-flow/` về nó.
 
+## Đổi thương hiệu (logo, favicon, tên, màu)
+
+Tạo 1 thư mục rồi trỏ env `FF_BRAND_DIR` vào đó — file nào có thì đè, thiếu thì giữ mặc định:
+
+```
+my-brand/
+  brand.json     {"name": "Acme Flow"}        → tên ở header/footer + tiêu đề tab
+  logo.svg       (hoặc .png/.jpg/.webp)        → logo header + footer
+  favicon.svg    (hoặc .png/.ico)              → icon tab trình duyệt
+  brand.css      :root{ --forest:#123456; … }  → đè màu (xem biến :root cuối style.css)
+```
+
+```bash
+FF_BRAND_DIR=./my-brand uvicorn feature_flow.server:app --port 4404
+```
+
 Chỗ lưu flow: đặt env `FF_FLOWS_DIR=/data/flows` (mặc định là `flows/` cạnh package).
 
 > ⚠️ Chưa có auth riêng: khi mount kiểu A, request vào `/feature-flow` **không đi qua** middleware đăng nhập của Django — cần tự chặn (bọc auth) trước khi mở cho người ngoài.

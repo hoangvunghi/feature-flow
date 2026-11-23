@@ -7,16 +7,21 @@ Gắn vào app ASGI khác (vd Django/FastAPI có sẵn): Mount("/feature-flow", 
 """
 from __future__ import annotations
 
+import html as _html
+import json
+import os
 import re
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from .model import FLOWS_DIR, Flow, list_flows
 
 STATIC = Path(__file__).resolve().parent / "static"
+# Thư mục thương hiệu riêng (tuỳ chọn): logo.*, favicon.*, brand.css, brand.json {"name": "..."}
+BRAND_DIR = Path(os.environ["FF_BRAND_DIR"]) if os.environ.get("FF_BRAND_DIR") else None
 app = FastAPI(title="feature-flow")
 _ID_OK = re.compile(r"^[A-Za-z0-9_-]{1,80}$")
 
@@ -81,15 +86,47 @@ def api_import(data: dict) -> dict:
     return {"ok": True, "id": flow_id, "nodes": len(flow.nodes), "edges": len(flow.edges)}
 
 
+_LOGO_SVG = re.compile(r"<svg [^>]*>\s*<path d=\"M6 7 L24 16 L6 25 L11 16 Z\"[^>]*/>\s*</svg>")
+
+
+def _brand_file(stem: str, exts: tuple[str, ...]) -> str | None:
+    for ext in exts:
+        if BRAND_DIR and (BRAND_DIR / f"{stem}.{ext}").is_file():
+            return f"brand/{stem}.{ext}"
+    return None
+
+
+def _render_index() -> str:
+    """index.html + đè thương hiệu từ FF_BRAND_DIR (logo/favicon/brand.css/brand.json)."""
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    if not BRAND_DIR:
+        return html
+    cfg_p = BRAND_DIR / "brand.json"
+    cfg = json.loads(cfg_p.read_text(encoding="utf-8")) if cfg_p.is_file() else {}
+    if name := cfg.get("name"):
+        esc = _html.escape(name)
+        html = html.replace("<title>Feature Flow</title>", f"<title>{esc}</title>")
+        html = html.replace("Feature <b>Flow</b>", esc).replace("Về Feature Flow", f"Về {esc}")
+    if logo := _brand_file("logo", ("svg", "png", "jpg", "jpeg", "webp")):
+        html = _LOGO_SVG.sub(f'<img src="{logo}" alt="" style="height:1.25em;vertical-align:-0.25em">', html)
+    if fav := _brand_file("favicon", ("svg", "png", "ico")):
+        html = re.sub(r'<link rel="icon" href="[^"]*" />', f'<link rel="icon" href="{fav}" />', html, count=1)
+    if css := _brand_file("brand", ("css",)):
+        html = html.replace("</head>", f'<link rel="stylesheet" href="{css}" />\n</head>', 1)
+    return html
+
+
 @app.get("/")
 def index(request: Request):
     # mount dưới subpath mà thiếu "/" cuối → URL tương đối (static/, api/) sẽ trỏ sai về gốc host
     if not request.url.path.endswith("/"):
         return RedirectResponse(request.url.path + "/")
-    return FileResponse(STATIC / "index.html")
+    return HTMLResponse(_render_index())
 
 
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
+if BRAND_DIR:
+    app.mount("/brand", StaticFiles(directory=BRAND_DIR), name="brand")
 
 
 if __name__ == "__main__":
