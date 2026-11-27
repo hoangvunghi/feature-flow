@@ -35,11 +35,13 @@ FLOWS_DIR = Path(os.environ.get("FF_FLOWS_DIR") or _default_flows_dir())
 GUIDES_DIR = Path(__file__).resolve().parent / "guides"
 
 
-def flow_path(flow_id: str, flows_dir: Path | None = None) -> Path:
-    """File của flow: ưu tiên thư mục flow; không có thì lấy hướng dẫn đóng gói (khi dùng FLOWS_DIR mặc định)."""
+def flow_path(flow_id: str, flows_dir: Path | None = None, guides: bool | None = None) -> Path:
+    """File của flow: ưu tiên thư mục flow; không có thì lấy hướng dẫn đóng gói kèm thư viện.
+    guides=None → chỉ dùng hướng dẫn khi đang ở FLOWS_DIR mặc định (giữ hành vi cũ)."""
     p = (flows_dir or FLOWS_DIR) / f"{flow_id}.json"
     g = GUIDES_DIR / f"{flow_id}.json"
-    return g if flows_dir is None and not p.exists() and g.exists() else p
+    use_guides = flows_dir is None if guides is None else guides
+    return g if use_guides and not p.exists() and g.exists() else p
 
 # Kiểu khối: start/end = vòng tròn, decision = thoi (rẽ nhánh), process = hộp bo góc.
 NODE_TYPES = ("start", "end", "decision", "process")
@@ -201,8 +203,8 @@ class Flow:
         return f
 
     @classmethod
-    def load(cls, flow_id: str, flows_dir: Path | None = None) -> "Flow":
-        return cls.from_dict(json.loads(flow_path(flow_id, flows_dir).read_text(encoding="utf-8")))
+    def load(cls, flow_id: str, flows_dir: Path | None = None, guides: bool | None = None) -> "Flow":
+        return cls.from_dict(json.loads(flow_path(flow_id, flows_dir, guides).read_text(encoding="utf-8")))
 
     # ---- Markdown (Mermaid) ----
     def to_markdown(self) -> str:
@@ -304,9 +306,10 @@ def _edge_compat(e: dict) -> dict:
             "label": e.get("label", "")}
 
 
-def list_flows(flows_dir: Path | None = None) -> list[dict]:
+def list_flows(flows_dir: Path | None = None, guides: bool | None = None) -> list[dict]:
     d = flows_dir or FLOWS_DIR
-    files = {p.stem: p for p in (GUIDES_DIR.glob("*.json") if flows_dir is None else [])}
+    use_guides = flows_dir is None if guides is None else guides
+    files = {p.stem: p for p in (GUIDES_DIR.glob("*.json") if use_guides else [])}
     files.update({p.stem: p for p in d.glob("*.json")})   # flow của user đè hướng dẫn cùng id
     out = []
     for stem, p in sorted(files.items()):
