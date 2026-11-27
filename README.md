@@ -1,93 +1,109 @@
 # feature-flow
 
-Vẽ + visualize luồng ship/debug một tính năng — giao diện kiểu *designed-to-scale*
-(paper sáng, kể chuyện từng bước, bấm khối ra giải thích, chỉnh sửa trực tiếp).
+Thư viện Python vẽ + visualize luồng ship/debug một tính năng: **API dựng luồng bằng code** + **web xem/sửa**
+(kể chuyện từng bước, bấm khối ra giải thích, chỉnh sửa trực tiếp) **nhúng được vào app ASGI khác**.
 
 ## Cài đặt
 
 ```bash
-pip install git+https://github.com/hoangvunghi/feature-flow
+pip install "feature-flow @ git+https://github.com/hoangvunghi/feature-flow@v0.2.0"
+pip install "feature-flow[server] @ git+…"   # + uvicorn, nếu chạy riêng
 ```
 
-## Hai cách dùng
+Không muốn phụ thuộc repo ngoài lúc build: chép **nguyên** thư mục `feature_flow/` của bản phát hành vào
+project, **không sửa bên trong** — mọi tuỳ biến đi qua tham số `create_app(...)` (xem dưới), nâng cấp = chép đè.
 
-**1. Lên plan bằng code** (Claude vẽ luồng khi lập kế hoạch):
+## 1. Dựng luồng bằng code
+
 ```python
 from feature_flow import Flow
-f = Flow("abc", "Tên luồng").meta(subtitle="…", duration="…", level="…", learn=[...])
+
+f = Flow("abc", "Tên luồng").meta(subtitle="…", duration="…", level="…")
 s = f.start()
 a = f.process("Bước A", step=1, explain="…")
 c = f.decision("Điều kiện?", step=2, explain="…")
 f.link(s, a); f.link(a, c)
 f.link(c, f.process("Nhánh true", step=3), "có (true)")
 f.narrate(1, "Tiêu đề bước", "Nội dung…", note="Cẩn thận…", note_type="warn", badge="VẤN ĐỀ")
-f.save()                      # -> feature-flow/abc.json
+f.save("docs/flows")                 # → docs/flows/abc.json  (không truyền: thư mục mặc định, xem dưới)
+
+Flow.load("abc", "docs/flows").to_markdown()   # Mermaid + JSON nhúng, nhập lại được: Flow.from_markdown
 ```
 
-**2. Bật server xem/sửa trên web:**
-```bash
-uvicorn feature_flow.server:app --port 4404 --reload
-# mở http://127.0.0.1:4404
-```
-- **Play / ← → / R / Space**: chạy lần lượt từng bước.
-- **Bấm 1 khối**: panel phải hiện giải thích khối đó.
-- **Bật "Chỉnh sửa"**: thêm Bước/Nhánh, 🔗 nối 2 khối, sửa nhãn/giải thích + nội dung bước → **💾 Lưu** (ghi lại `feature-flow/<id>.json`).
+Ví dụ đầy đủ (nhóm, vòng lặp, tài liệu dạng blog): `examples/build_*.py` → `examples/flows/`.
 
-## Cấu trúc
-- `feature_flow/model.py` — `Flow/Node/Edge/Step` + đọc/ghi JSON.
-- `feature_flow/server.py` — FastAPI: serve web + CRUD flow.
-- `feature_flow/static/` — giao diện (Cytoscape + dagre, light paper).
-- `feature-flow/*.json` — mỗi luồng 1 file (db nhẹ, git-friendly).
-- `build_demo.py` — ví dụ dựng luồng bằng API.
-
-## Nhúng vào web khác (chạy chung cổng, dưới subpath)
-
-Frontend dùng đường dẫn **tương đối** nên chạy được ở gốc lẫn dưới subpath.
-
-**A. Gắn vào app ASGI có sẵn** (vd Django `myproject/asgi.py`) — chung process, chung cổng:
+## 2. Nhúng web vào app của bạn
 
 ```python
-# myproject/asgi.py
-from django.core.asgi import get_asgi_application
-from starlette.applications import Starlette
-from starlette.routing import Mount
-from feature_flow.server import app as vf_app
+from feature_flow import create_app
 
-django_app = get_asgi_application()
-application = Starlette(routes=[
-    Mount("/feature-flow", app=vf_app),   # → http://host:8000/feature-flow/
-    Mount("/", app=django_app),
-])
+ff = create_app(
+    "data/flows",                                  # thư mục lưu flow (*.json)
+    brand_dir="brand",                             # logo/tên/sắc độ (tuỳ chọn)
+    can_edit=lambda request: is_editor(request),   # True/False hoặc hàm(request) → bool
+    home={"url": "/", "label": "← Trang chủ"},     # nút quay về app của bạn
+)
 ```
 
-**B. Reverse proxy** (nginx / Kubernetes Ingress) — chạy riêng 1 service, proxy path `/feature-flow/` về nó.
+Gắn dưới subpath (frontend dùng đường dẫn tương đối nên chạy được ở gốc lẫn subpath):
+
+```python
+# Starlette / FastAPI
+app.mount("/feature-flow", ff)
+
+# Django — myproject/asgi.py
+from starlette.applications import Starlette
+from starlette.routing import Mount
+application = Starlette(routes=[Mount("/feature-flow", app=ff), Mount("/", app=get_asgi_application())])
+```
+
+| Tham số | Mặc định | Ý nghĩa |
+|---|---|---|
+| `flows_dir` | env `FF_FLOWS_DIR`, không có thì `<gốc git>/feature-flow/` | Nơi đọc/ghi flow |
+| `brand_dir` | không | Thư mục thương hiệu (dưới) |
+| `can_edit` | `True` | `False` → UI chỉ đọc (qua `GET api/me`) **và** API ghi trả 403 |
+| `home` | `"home"` trong `brand.json` | Nút về trang chủ; chỉ nhận path `/…` hoặc `http(s)://` |
+| `guides` | `True` | Hiện 3 tài liệu hướng dẫn đóng gói kèm |
+| `security_headers` | `True` | CSP (JS chỉ từ app, script inline băm sha256 tự động) + X-Frame-Options, nosniff, Referrer-Policy |
+
+> ⚠️ `create_app` **không tự đăng nhập**: xác thực người dùng là việc của app nhúng (middleware/ASGI bọc
+> ngoài). `can_edit` chỉ quyết định quyền sửa sau khi đã vào được.
+
+JS (Cytoscape, dagre, marked, DOMPurify, turndown) để sẵn trong `feature_flow/static/vendor/` — không gọi CDN.
+Nguồn + sha256 từng file: `static/vendor/SOURCES.txt`.
+
+## 3. Chạy riêng
+
+```bash
+uvicorn feature_flow.server:app --port 4404 --reload     # cấu hình qua env FF_FLOWS_DIR / FF_BRAND_DIR
+```
+
+- **Play / ← → / R / Space**: chạy lần lượt từng bước · **bấm 1 khối**: panel phải hiện giải thích.
+- **Bật "Chỉnh sửa"**: thêm bước/nhánh, nối khối, sửa nhãn/giải thích → **💾 Lưu**.
+
+## Thương hiệu
+
+File nào có thì đè, thiếu thì giữ mặc định:
+
+```
+brand/
+  brand.json   {"name": "Acme Flow", "theme": "fincon", "home": {"url": "/", "label": "← Acme"}}
+  logo.svg     (hoặc .png/.jpg/.webp)   → logo header + footer
+  favicon.svg  (hoặc .png/.ico)         → icon tab
+  brand.css    :root{ --forest:#123456; … }   → đè màu (biến :root cuối style.css)
+```
 
 ## Hướng dẫn sử dụng có sẵn
 
-3 tài liệu hướng dẫn (vẽ flow, viết tài liệu, dùng thư viện code) đóng gói kèm thư viện ở
-`feature_flow/guides/` → thư mục flow nào cũng tự có, bấm **📖 Hướng dẫn** để mở. Sửa rồi lưu thì
-bản sửa ghi vào thư mục flow của bạn (đè bản gốc theo id). Dựng lại: `python build_guide_doc.py`.
+3 tài liệu (vẽ flow, viết tài liệu, dùng thư viện) đóng gói ở `feature_flow/guides/` — bấm **📖 Hướng dẫn**.
+Sửa rồi lưu thì bản sửa ghi vào `flows_dir` (đè bản gốc theo id). Dựng lại: `python scripts/build_guides.py`.
 
-## Đổi thương hiệu (logo, favicon, tên, màu)
-
-Tạo thư mục `brand/` ngay trong thư mục flow (vd `feature-flow/brand/`) — hoặc trỏ env `FF_BRAND_DIR`
-sang chỗ khác. File nào có thì đè, thiếu thì giữ mặc định:
-
-```
-feature-flow/brand/
-  brand.json     {"name": "Acme Flow", "theme": "fincon"}  → tên header/footer/tab + sắc độ mặc định
-  logo.svg       (hoặc .png/.jpg/.webp)        → logo header + footer
-  favicon.svg    (hoặc .png/.ico)              → icon tab trình duyệt
-  brand.css      :root{ --forest:#123456; … }  → đè màu (xem biến :root cuối style.css)
-```
+## Phát triển
 
 ```bash
-uvicorn feature_flow.server:app --port 4404                         # tự lấy feature-flow/brand/
-FF_BRAND_DIR=./my-brand uvicorn feature_flow.server:app --port 4404  # hoặc thư mục khác
+uv run --extra test pytest -q
 ```
 
-Chỗ lưu flow: đặt env `FF_FLOWS_DIR=/data/flows`. Không đặt thì mặc định là `<gốc project>/feature-flow/`
-(gốc = thư mục cha gần nhất có `.git`, tính từ thư mục đang chạy; không có `.git` thì thư mục đang chạy).
-Trong Docker thường không có `.git` → nên đặt `FF_FLOWS_DIR` tường minh.
-
-> ⚠️ Chưa có auth riêng: khi mount kiểu A, request vào `/feature-flow` **không đi qua** middleware đăng nhập của Django — cần tự chặn (bọc auth) trước khi mở cho người ngoài.
+- `feature_flow/model.py` — `Flow/Node/Edge/Step/Group` + JSON/Markdown.
+- `feature_flow/server.py` — `create_app` (FastAPI) + `app` mặc định.
+- `feature_flow/static/` — giao diện + `vendor/`.
