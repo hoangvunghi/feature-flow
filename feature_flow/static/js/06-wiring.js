@@ -1,4 +1,12 @@
 // ---------- wiring ----------
+// Quyền sửa: app nhúng trả api/me; chạy riêng thì không có endpoint (404) → giữ nguyên quyền sửa.
+fetch("api/me").then((r) => (r.ok ? r.json() : null)).then((me) => {
+  if (!me || me.can_edit !== false) return;
+  READONLY = true;
+  document.body.classList.add("ff-readonly");
+  if ($("#editMode").checked) { $("#editMode").checked = false; $("#editMode").dispatchEvent(new Event("change")); }
+  document.querySelectorAll(".note-text").forEach((el) => { el.contentEditable = "false"; });
+}).catch(() => {});
 // 8 sắc độ giao diện (CSS: [data-theme=…] cuối style.css). Lưu theo trình duyệt.
 const THEMES = [["", "🍃 Thanh Trà Trong Gió"], ["fincon", "🔷 Fincon"], ["net-co-dong-duong", "🏮 Nét Cổ Đông Dương"],
   ["hoang-hon-mua-thu", "🍂 Hoàng Hôn Mùa Thu"], ["phim-co-dien", "🎞 Phim Cổ Điển"], ["cuoi-he-dau-thu", "🌿 Cuối Hè Đầu Thu"],

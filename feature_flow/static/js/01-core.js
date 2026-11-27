@@ -10,7 +10,9 @@ let lastClient = { x: 0, y: 0 }, ehCompleted = false, editingGid = null;
 let flowOn = true, flowRaf = null, dashOff = 0;   // mũi tên chạy "kiến bò" theo chiều đi
 document.addEventListener("mousemove", (e) => { lastClient = { x: e.clientX, y: e.clientY }; });
 const $ = (s) => document.querySelector(s);
-const editing = () => $("#editMode").checked;
+// READONLY: app nhúng trả api/me {can_edit:false} → khoá mọi chỉnh sửa ở UI. Server vẫn chặn thật.
+let READONLY = false;
+const editing = () => !READONLY && $("#editMode").checked;
 
 // Màu khối theo SẮC ĐỘ đang chọn (đọc biến CSS) — đổi theme thì cy.style(stylesheet()) vẽ lại.
 // Khối tự đặt màu (n.color) giữ nguyên màu của nó.

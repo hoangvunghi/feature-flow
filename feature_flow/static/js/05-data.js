@@ -10,7 +10,7 @@ async function save() {
 
 // ---------- helpers ----------
 function nodeOf(id) { return flow.nodes.find((n) => n.id === id) || { step: 0 }; }
-function markDirty() { dirty = true; $("#btnSave").disabled = false; }
+function markDirty() { if (READONLY) return; dirty = true; $("#btnSave").disabled = false; }
 // escape cho CẢ nội dung lẫn thuộc tính ("…" / '…') — textContent→innerHTML không escape dấu nháy
 function esc(s) { const d = document.createElement("div"); d.textContent = s == null ? "" : s;
   return d.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
@@ -109,7 +109,7 @@ function makeFlowLi(f, child) {
   if (hiddenFlows.has(f.id)) li.classList.add("is-hidden");
   if (flow && flow.id === f.id) li.classList.add("active");
   li.draggable = true;
-  li.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/vf-flow", f.id); e.dataTransfer.setData("text/plain", f.id); e.dataTransfer.effectAllowed = "move"; li.classList.add("dragging"); });
+  li.addEventListener("dragstart", (e) => { if (READONLY) { e.preventDefault(); return; } e.dataTransfer.setData("text/vf-flow", f.id); e.dataTransfer.setData("text/plain", f.id); e.dataTransfer.effectAllowed = "move"; li.classList.add("dragging"); });
   li.addEventListener("dragend", () => li.classList.remove("dragging"));
   const name = document.createElement("span");
   name.className = "fl-name"; name.textContent = (f.kind === "doc" ? "📄 " : "▦ ") + (f.title || f.id)

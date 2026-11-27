@@ -1,0 +1,11 @@
+# Nguồn thư viện JS — file lấy NGUYÊN VẸN từ tarball npm (registry.npmjs.org), không tự build/minify.
+# Đối chiếu: tải tarball 'npm pack <gói>@<bản>' (integrity sha512 do npm công bố) → so sha256 file bên dưới.
+# file-local | gói@bản | đường dẫn trong tarball | sha256
+cytoscape-3.30.2.min.js | cytoscape@3.30.2 | package/dist/cytoscape.min.js | 83e8c54a6bec655bfd81df07df605649c268af69aeca67a5ea2da54ea42dac81
+dagre-0.8.5.min.js | dagre@0.8.5 | package/dist/dagre.min.js | 62eb9787ccfdbdf4148d4d99d31dbf9ee4770eafee81e637d759b52aac22cd51
+cytoscape-dagre-2.5.0.js | cytoscape-dagre@2.5.0 | package/cytoscape-dagre.js | bf70fe402991dcbff33e05a7e4a5271c78020bb75e85d1c80ab7538e4157112e
+cytoscape-edgehandles-4.0.1.js | cytoscape-edgehandles@4.0.1 | package/cytoscape-edgehandles.js | 0f3cc29c8d7a0306ff7895fc34483e7a18d2047e4ce152782dc94f2da83a16ee
+marked-12.0.2.min.js | marked@12.0.2 | package/marked.min.js | 15fabce5b65898b32b03f5ed25e9f891a729ad4c0d6d877110a7744aa847a894
+dompurify-3.1.6.min.js | dompurify@3.1.6 | package/dist/purify.min.js | c0845096a7c4a6741f362ac506c94c1c7d27dc603bcc1bf64a587f76f2dbe3a1
+turndown-7.2.0.js | turndown@7.2.0 | package/dist/turndown.js | ae3605eb07ab920a2d181008ace692ec560fa6cd67d2e291f77cbc5c4322cd38
+turndown-plugin-gfm-1.0.2.js | turndown-plugin-gfm@1.0.2 | package/dist/turndown-plugin-gfm.js | cf744cc1b7580f06d64ce236a4ff2630a53d389eccf2133a09d71ca443511912

@@ -219,8 +219,8 @@ function buildToc(view) {
 function noteItemEl(it, onDel, onEnter) {
   const li = document.createElement("li"); li.className = "note-item" + (it.done ? " done" : "");
   const box = document.createElement("span"); box.className = "note-box"; box.textContent = it.done ? "☑" : "☐";
-  box.addEventListener("click", () => { beginChange(); it.done = !it.done; markDirty(); renderNotes(); });
-  const txt = document.createElement("span"); txt.className = "note-text"; txt.contentEditable = "true"; txt.textContent = it.t || "";
+  box.addEventListener("click", () => { if (READONLY) return; beginChange(); it.done = !it.done; markDirty(); renderNotes(); });
+  const txt = document.createElement("span"); txt.className = "note-text"; txt.contentEditable = READONLY ? "false" : "true"; txt.textContent = it.t || "";
   txt.addEventListener("input", () => { beginChange(true); it.t = txt.textContent; markDirty(); });
   txt.addEventListener("keydown", (e) => { if (e.key === "Enter" && onEnter) { e.preventDefault(); onEnter(); } });
   const del = document.createElement("span"); del.className = "note-del"; del.textContent = "✕"; del.title = "Xóa";

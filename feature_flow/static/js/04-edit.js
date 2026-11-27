@@ -177,9 +177,10 @@ function deleteSel() {
 const curStepN = () => (steps.length ? steps[idx].n : maxStepN);
 
 // ---------- context menu (chuột phải) ----------
-function setEdit(on) { const cb = $("#editMode"); if (cb.checked !== on) { cb.checked = on; cb.dispatchEvent(new Event("change")); } }
+function setEdit(on) { if (READONLY) return; const cb = $("#editMode"); if (cb.checked !== on) { cb.checked = on; cb.dispatchEvent(new Event("change")); } }
 function hideCtx() { $("#ctxmenu").classList.add("hidden"); }
 function showCtx(items, x, y) {
+  if (READONLY) return;   // menu chuột phải toàn thao tác sửa (đổi tên/xoá/nhóm/ghi chú)
   const m = $("#ctxmenu"); m.innerHTML = "";
   items.forEach((it) => {
     if (it.sep) { const s = document.createElement("div"); s.className = "sep"; m.appendChild(s); return; }
