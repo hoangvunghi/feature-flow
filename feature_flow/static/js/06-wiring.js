@@ -81,6 +81,7 @@ $("#btnLink").addEventListener("click", startLink);
 $("#btnDelete").addEventListener("click", deleteSel);
 $("#btnSave").addEventListener("click", save);
 $("#btnShare").addEventListener("click", shareFlow);
+$("#btnHistory").addEventListener("click", showHistory);
 $("#btnNewFlow").addEventListener("click", newItem);
 $("#btnShowHidden").addEventListener("click", () => { showHidden = !showHidden; renderFlowTree(); });
 $("#btnGuide").addEventListener("click", () => {

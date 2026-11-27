@@ -454,7 +454,10 @@ kbd { font: 700 11px var(--mono); border: 1.5px solid var(--line); border-bottom
 .chip.amber { color: var(--amber-ink); }
 
 /* chỉ có quyền XEM (app nhúng trả api/me can_edit=false) → ẩn mọi lối vào chỉnh sửa. Server vẫn chặn thật. */
-.ff-readonly .switch, .ff-readonly #btnSave, .ff-readonly #btnShare, .ff-readonly #btnNewFlow,
+.ff-readonly .switch, .ff-readonly #btnSave, .ff-readonly #btnShare, .ff-readonly #btnHistory, .ff-readonly #btnNewFlow,
 .ff-readonly #btnImportMd, .ff-readonly #btnAddNote, .ff-readonly .note-del, .ff-readonly .fl-add,
 .ff-readonly .fl-del { display: none !important; }
 .ff-readonly .note-box { cursor: default; }
+
+/* danh sách lựa chọn dài (vd 30 bản lịch sử) → xếp dọc + cuộn */
+#modalChoices { flex-wrap: wrap; max-height: 60vh; overflow-y: auto; }

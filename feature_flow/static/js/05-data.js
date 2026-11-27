@@ -1,9 +1,17 @@
 // ---------- lưu ----------
 async function save() {
   flow.steps = steps;
-  const r = await fetch(`api/flows/${flow.id}`, { method: "PUT",
+  const put = () => fetch(`api/flows/${flow.id}`, { method: "PUT",
     headers: { "Content-Type": "application/json" }, body: JSON.stringify(flow) });
+  let r = await put();
+  // 409 = người khác đã lưu sau khi mình mở (flow._rev cũ). Ghi đè thì bản của họ vẫn còn trong 🕘 Lịch sử.
+  if (r.status === 409) {
+    if (!(await askConfirm("Luồng này đã có người khác sửa sau khi bạn mở. Ghi đè bằng bản của bạn? "
+      + "(Bản của họ vẫn xem/khôi phục được trong 🕘 Lịch sử.)", "Ghi đè"))) return toast("Chưa lưu — tải lại luồng để xem bản mới", true);
+    delete flow._rev; r = await put();
+  }
   if (!r.ok) return toast("Lưu lỗi: " + (await r.text()), true);
+  flow._rev = (await r.json())._rev;
   dirty = false; $("#btnSave").disabled = true; toast("Đã lưu ✓");
   flowsCache = await (await fetch("api/flows")).json(); renderFlowTree();   // cập nhật cây (tên/nhóm có thể đổi)
 }
@@ -227,7 +235,25 @@ async function addFlowToGroup(g, kind = "flow") {
 async function patchFlow(id, changes) {
   const f = await (await fetch(`api/flows/${id}`)).json();
   Object.assign(f, changes);
-  await fetch(`api/flows/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) });
+  const r = await fetch(`api/flows/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) });
+  // đang mở chính luồng này → cập nhật _rev, không thì lần Lưu sau bị báo xung đột oan
+  if (r.ok && flow && flow.id === id) flow._rev = (await r.json())._rev;
+}
+
+// ---------- lịch sử phiên bản ----------
+async function showHistory() {
+  if (!flow) return;
+  const vs = await (await fetch(`api/flows/${flow.id}/history`)).json();
+  if (!vs.length) return toast("Chưa có bản cũ nào — lưu lần đầu sẽ bắt đầu ghi lịch sử");
+  const v = await askChoice(`Lịch sử "${flow.title || flow.id}" (${vs.length} bản, mới nhất trước):`,
+    vs.map((x) => ({ label: `${x.at} · ${x.nodes} khối${x.title !== flow.title ? " · " + x.title : ""}`, value: x.v })));
+  if (v == null) return;
+  if (dirty && !(await askConfirm("Đang có thay đổi chưa lưu — khôi phục sẽ bỏ chúng. Tiếp tục?", "Tiếp tục"))) return;
+  if (!(await askConfirm(`Khôi phục bản ${vs.find((x) => x.v === v).at}? Bản hiện tại vẫn được giữ trong lịch sử.`, "Khôi phục"))) return;
+  const r = await fetch(`api/flows/${flow.id}/restore`, { method: "POST",
+    headers: { "Content-Type": "application/json" }, body: JSON.stringify({ v }) });
+  if (!r.ok) return toast("Khôi phục lỗi: " + (await r.text()), true);
+  await loadFlow(flow.id); await refreshTree(); toast("Đã khôi phục ✓");
 }
 async function refreshTree() { flowsCache = await (await fetch("api/flows")).json(); renderFlowTree(); }
 

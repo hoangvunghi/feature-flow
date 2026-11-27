@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 7 L24 16 L6 25 L11 16 Z' fill='%23c0603e' transform='rotate(-22 16 16)'/></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="static/style.css?v=92" />
+<link rel="stylesheet" href="static/style.css?v=93" />
 <!-- áp sắc độ đã chọn TRƯỚC khi vẽ trang (tránh nháy màu). Chưa chọn lần nào (null) → giữ mặc định
      (brand.json "theme" nếu có); đã chọn Thanh Trà ("") thì vẫn tôn trọng lựa chọn đó. -->
 <script>try { var t = localStorage.getItem("ff-theme"); if (t !== null) document.documentElement.dataset.theme = t; } catch (e) {}</script>
@@ -26,6 +26,7 @@
   <span class="spacer"></span>
   <select id="themePick" class="theme-pick" title="Đổi sắc độ giao diện"></select>
   <label class="switch"><input type="checkbox" id="editMode" /> <span>✎ Chỉnh sửa</span></label>
+  <button id="btnHistory" class="btn ghost" title="Xem / khôi phục bản cũ">🕘 Lịch sử</button>
   <button id="btnShare" class="btn ghost">🔗 Chia sẻ</button>
   <button id="btnSave" class="btn solid" disabled>💾 Lưu</button>
 </header>
@@ -245,11 +246,11 @@
 </div>
 
 <div id="toast" class="toast hidden"></div>
-<script src="static/js/01-core.js?v=92"></script>
-<script src="static/js/02-canvas.js?v=92"></script>
-<script src="static/js/03-view.js?v=92"></script>
-<script src="static/js/04-edit.js?v=92"></script>
-<script src="static/js/05-data.js?v=92"></script>
-<script src="static/js/06-wiring.js?v=92"></script>
+<script src="static/js/01-core.js?v=93"></script>
+<script src="static/js/02-canvas.js?v=93"></script>
+<script src="static/js/03-view.js?v=93"></script>
+<script src="static/js/04-edit.js?v=93"></script>
+<script src="static/js/05-data.js?v=93"></script>
+<script src="static/js/06-wiring.js?v=93"></script>
 </body>
 </html>

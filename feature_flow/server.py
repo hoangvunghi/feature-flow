@@ -34,6 +34,27 @@ _LOGO_SVG = re.compile(r"<svg [^>]*>\s*<path d=\"M6 7 L24 16 L6 25 L11 16 Z\"[^>
 _INLINE_JS = re.compile(r"<script>(.*?)</script>", re.S)
 
 CanEdit = Union[bool, Callable[[Request], bool]]
+HISTORY_KEEP = 30                      # số bản cũ giữ lại mỗi flow (.history/<id>/)
+_VER_OK = re.compile(r"^\d{8}T\d{6}\d{6}$")
+
+
+def _rev(p: Path) -> str:
+    """Phiên bản file = băm nội dung (đổi bất kỳ byte nào → đổi rev)."""
+    return hashlib.sha256(p.read_bytes()).hexdigest()[:16]
+
+
+def _archive(d: Path, flow_id: str) -> None:
+    """Chép bản hiện tại sang .history/<id>/<thời điểm>.json TRƯỚC khi ghi đè/xoá; giữ HISTORY_KEEP bản mới nhất.
+    Thư mục bắt đầu bằng '.' + quét *.json không đệ quy → không lẫn vào danh sách flow."""
+    p = d / f"{flow_id}.json"
+    if not p.is_file():
+        return
+    from datetime import datetime
+    h = d / ".history" / flow_id
+    h.mkdir(parents=True, exist_ok=True)
+    (h / f"{datetime.now():%Y%m%dT%H%M%S%f}.json").write_bytes(p.read_bytes())
+    for old in sorted(h.glob("*.json"))[:-HISTORY_KEEP]:
+        old.unlink()
 
 
 def _csp(index_html: str) -> str:
@@ -137,17 +158,59 @@ def create_app(flows_dir: str | Path | None = None, *, brand_dir: str | Path | N
 
     @app.get("/api/flows/{flow_id}")
     def api_flow(flow_id: str) -> dict:
-        _read_path(flow_id)
-        return Flow.load(flow_id, d, guides).to_dict()
+        p = _read_path(flow_id)
+        return {**Flow.load(flow_id, d, guides).to_dict(), "_rev": _rev(p)}
 
     @app.put("/api/flows/{flow_id}")
     def api_save(flow_id: str, data: dict, request: Request) -> dict:
         _need_edit(request)
-        _path(flow_id)
+        p = _path(flow_id)
+        # Chống ghi đè: client gửi lại _rev lúc mở; file đã đổi từ đó (người khác lưu) → 409.
+        # Không gửi _rev (script Python, tạo mới) → ghi như cũ.
+        base = data.pop("_rev", None)
+        if base and p.is_file() and _rev(p) != base:
+            raise HTTPException(409, "Luồng đã được người khác sửa sau khi bạn mở")
         data["id"] = flow_id                 # ép id theo URL (không cho đổi id qua body)
         flow = Flow.from_dict(data)          # ném lỗi nếu thiếu/sai field
+        _archive(d, flow_id)
         flow.save(d)
-        return {"ok": True, "id": flow_id, "nodes": len(flow.nodes), "edges": len(flow.edges)}
+        return {"ok": True, "id": flow_id, "nodes": len(flow.nodes), "edges": len(flow.edges), "_rev": _rev(p)}
+
+    @app.get("/api/flows/{flow_id}/history")
+    def api_history(flow_id: str) -> list[dict]:
+        """Các bản cũ, mới nhất trước: {v, at, title, nodes}."""
+        _path(flow_id)
+        out = []
+        for f in sorted((d / ".history" / flow_id).glob("*.json"), reverse=True):
+            try:
+                data = json.loads(f.read_text(encoding="utf-8"))
+            except ValueError:
+                continue
+            v = f.stem
+            out.append({"v": v, "at": f"{v[:4]}-{v[4:6]}-{v[6:8]} {v[9:11]}:{v[11:13]}:{v[13:15]}",
+                        "title": data.get("title", ""), "nodes": len(data.get("nodes", []))})
+        return out
+
+    def _ver_path(flow_id: str, v: str) -> Path:
+        _path(flow_id)
+        f = d / ".history" / flow_id / f"{v}.json"
+        if not _VER_OK.match(v) or not f.is_file():
+            raise HTTPException(404, "không có bản này")
+        return f
+
+    @app.get("/api/flows/{flow_id}/history/{v}")
+    def api_history_get(flow_id: str, v: str) -> dict:
+        return json.loads(_ver_path(flow_id, v).read_text(encoding="utf-8"))
+
+    @app.post("/api/flows/{flow_id}/restore")
+    def api_restore(flow_id: str, data: dict, request: Request) -> dict:
+        """Khôi phục bản cũ {v}; bản đang có cũng vào lịch sử nên khôi phục nhầm vẫn quay lại được."""
+        _need_edit(request)
+        src = _ver_path(flow_id, str(data.get("v", "")))
+        flow = Flow.from_dict({**json.loads(src.read_text(encoding="utf-8")), "id": flow_id})
+        _archive(d, flow_id)
+        p = flow.save(d)
+        return {"ok": True, "id": flow_id, "_rev": _rev(p)}
 
     @app.get("/api/flows/{flow_id}/markdown")
     def api_markdown(flow_id: str) -> dict:
@@ -160,6 +223,7 @@ def create_app(flows_dir: str | Path | None = None, *, brand_dir: str | Path | N
         p = _path(flow_id)
         if not p.exists():
             raise HTTPException(404, f"flow '{flow_id}' không tồn tại")
+        _archive(d, flow_id)                 # xoá nhầm vẫn còn bản trong .history
         p.unlink()
         return {"ok": True, "id": flow_id}
 
@@ -172,6 +236,7 @@ def create_app(flows_dir: str | Path | None = None, *, brand_dir: str | Path | N
             raise HTTPException(400, "thiếu id")
         _path(flow_id)
         flow = Flow.from_markdown(flow_id, data.get("markdown") or "")
+        _archive(d, flow_id)
         flow.save(d)
         return {"ok": True, "id": flow_id, "nodes": len(flow.nodes), "edges": len(flow.edges)}
 
