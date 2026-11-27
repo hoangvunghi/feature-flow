@@ -30,7 +30,14 @@ f.save("docs/flows")                 # → docs/flows/abc.json  (không truyền
 Flow.load("abc", "docs/flows").to_markdown()   # Mermaid + JSON nhúng, nhập lại được: Flow.from_markdown
 ```
 
-Ví dụ đầy đủ (nhóm, vòng lặp, tài liệu dạng blog): `examples/build_*.py` → `examples/flows/`.
+**Icon + nhãn nổi** (sơ đồ kiến trúc): `f.process("Server A", icon="server", badge="cpu 40%")`.
+Icon có sẵn: `server database user laptop cloud balancer queue file gear lock mail clock api chart check alert`.
+Khi ▶ Trình chiếu, mỗi bước có chấm chạy dọc mũi tên dẫn vào khối vừa hiện.
+
+Ví dụ đầy đủ (nhóm, vòng lặp, tài liệu dạng blog, kiến trúc có icon): `examples/build_*.py` → `examples/flows/`.
+
+**Nhiều người cùng sửa:** web gửi kèm phiên bản lúc mở; ai lưu trên bản cũ sẽ được hỏi trước khi ghi đè
+(API trả 409). Mỗi lần lưu/xoá giữ bản cũ ở `<flows_dir>/.history/<id>/` (30 bản) — nút **🕘 Lịch sử** để khôi phục.
 
 ## 2. Nhúng web vào app của bạn
 

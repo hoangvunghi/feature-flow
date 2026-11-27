@@ -78,8 +78,23 @@ function fillNodeEditor(n) {
     b.addEventListener("click", () => setNodeColor(c));
     sw.appendChild(b);
   });
+  const ic = $("#e-icon"); ic.innerHTML = "";
+  ["", ...ICON_NAMES].forEach((k) => { const o = document.createElement("option"); o.value = k; o.textContent = k || "— không —"; ic.appendChild(o); });
+  ic.value = ICONS[n.icon] ? n.icon : "";
+  $("#e-badge").value = n.badge || "";
   fillNodeGroupSel();
 }
+// icon + nhãn nổi của khối đang chọn
+$("#e-icon").addEventListener("change", () => {
+  const selNode = cy.$("node.sel"); if (selNode.length === 0) return;
+  const n = nodeOf(selNode.id()); if (!n) return;
+  beginChange(); n.icon = $("#e-icon").value; selNode.data("icon", n.icon); markDirty(); renderNoteBadges();
+});
+$("#e-badge").addEventListener("input", () => {
+  const selNode = cy.$("node.sel"); if (selNode.length === 0) return;
+  const n = nodeOf(selNode.id()); if (!n) return;
+  beginChange(true); n.badge = $("#e-badge").value; markDirty(); renderNoteBadges();
+});
 function setNodeColor(c) {
   const selNode = cy.$("node.sel"); if (selNode.length === 0) return;
   const n = nodeOf(selNode.id()); if (!n) return;

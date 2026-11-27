@@ -1,0 +1,161 @@
+{
+  "id": "arch-load-balancer",
+  "title": "Request đi qua cân bằng tải",
+  "kind": "flow",
+  "visibility": "private",
+  "doc_md": "",
+  "group": "Ví dụ",
+  "subtitle": "Icon + nhãn nổi + chấm chạy theo bước.",
+  "duration": "2 phút",
+  "level": "Cơ bản",
+  "learn": [],
+  "notes": [],
+  "nodes": [
+    {
+      "id": "s1",
+      "type": "start",
+      "label": "",
+      "explain": "",
+      "step": 0,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": [],
+      "icon": "",
+      "badge": ""
+    },
+    {
+      "id": "p2",
+      "type": "process",
+      "label": "Người dùng",
+      "explain": "Trình duyệt gửi request kèm cookie phiên.",
+      "step": 1,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": [],
+      "icon": "laptop",
+      "badge": "giỏ: 2 món"
+    },
+    {
+      "id": "p3",
+      "type": "process",
+      "label": "Cân bằng tải",
+      "explain": "Chọn server còn rảnh (round-robin).",
+      "step": 2,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": [],
+      "icon": "balancer",
+      "badge": ""
+    },
+    {
+      "id": "p4",
+      "type": "process",
+      "label": "Server A",
+      "explain": "Xử lý request.",
+      "step": 3,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": [],
+      "icon": "server",
+      "badge": ""
+    },
+    {
+      "id": "p5",
+      "type": "process",
+      "label": "Server B",
+      "explain": "Xử lý request.",
+      "step": 3,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": [],
+      "icon": "server",
+      "badge": ""
+    },
+    {
+      "id": "p6",
+      "type": "process",
+      "label": "Cache phiên",
+      "explain": "Server nào nhận cũng đọc được giỏ hàng nhờ phiên dùng chung.",
+      "step": 4,
+      "color": "",
+      "x": null,
+      "y": null,
+      "notes": [],
+      "icon": "database",
+      "badge": "phiên: user-1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "s1",
+      "target": "p2",
+      "label": ""
+    },
+    {
+      "source": "p2",
+      "target": "p3",
+      "label": ""
+    },
+    {
+      "source": "p3",
+      "target": "p4",
+      "label": ""
+    },
+    {
+      "source": "p3",
+      "target": "p5",
+      "label": ""
+    },
+    {
+      "source": "p4",
+      "target": "p6",
+      "label": ""
+    },
+    {
+      "source": "p5",
+      "target": "p6",
+      "label": ""
+    }
+  ],
+  "steps": [
+    {
+      "n": 1,
+      "title": "Người dùng gửi request",
+      "body": "Giỏ hàng đang có 2 món.",
+      "note": "",
+      "note_type": "info",
+      "badge": ""
+    },
+    {
+      "n": 2,
+      "title": "Cân bằng tải chọn server",
+      "body": "Không cố định 1 server cho 1 người.",
+      "note": "",
+      "note_type": "info",
+      "badge": ""
+    },
+    {
+      "n": 3,
+      "title": "Server xử lý",
+      "body": "A hay B đều được.",
+      "note": "",
+      "note_type": "info",
+      "badge": ""
+    },
+    {
+      "n": 4,
+      "title": "Phiên dùng chung",
+      "body": "Giỏ hàng không mất dù đổi server.",
+      "note": "",
+      "note_type": "info",
+      "badge": "GIẢI PHÁP"
+    }
+  ],
+  "arrows": [],
+  "groups": []
+}

@@ -83,3 +83,14 @@ def test_conflict_and_history(tmp_path):
     assert c.get("/api/flows/demo/history").json()[0]["title"] == "Bản A"   # xoá nhầm vẫn còn bản
     ro = TestClient(create_app(tmp_path, can_edit=False))
     assert ro.post("/api/flows/demo/restore", json={"v": hist[0]["v"]}).status_code == 403
+
+
+def test_icon_badge_roundtrip(tmp_path):
+    f = Flow("arch", "Arch")
+    n = f.process("Server", icon="server", badge="cpu 40%")
+    f.save(tmp_path)
+    g = Flow.load("arch", tmp_path)
+    node = next(x for x in g.nodes if x.id == n)
+    assert (node.icon, node.badge) == ("server", "cpu 40%")
+    assert Flow.from_markdown("arch", g.to_markdown()).to_dict() == g.to_dict()
+    assert Flow.from_dict({"id": "old", "nodes": [{"id": "p1", "type": "process"}]}).nodes[0].icon == ""   # JSON cũ

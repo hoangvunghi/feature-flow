@@ -305,15 +305,17 @@ function reveal(stepN) {
   }
   cy.batch(() => {
     cy.nodes().forEach((n) => {
-      const ns = nodeOf(n.id()).step || 0;
+      const own = n.data("forid");   // phụ kiện (nhãn nổi, dấu !) mờ/hiện theo khối của nó
+      const ns = nodeOf(own || n.id()).step || 0;
       n.toggleClass("dim", ns > stepN);
-      n.toggleClass("current", ns === stepN && stepN > 0);
+      n.toggleClass("current", !own && ns === stepN && stepN > 0);
     });
     cy.edges().forEach((e) => {
       const vis = (nodeOf(e.data("source")).step || 0) <= stepN && (nodeOf(e.data("target")).step || 0) <= stepN;
       e.toggleClass("dim", !vis);
     });
   });
+  sendPackets(stepN);
   // focus: zoom vào phần đã hiện (to + giữa) như designed-to-scale. Không auto-fit khi đang sửa.
   if (!editing()) {
     const vis = cy.nodes().filter((n) => !n.hasClass("dim"));
@@ -321,6 +323,19 @@ function reveal(stepN) {
     const target = cur.length ? cur.closedNeighborhood().nodes().union(vis.slice(-4)) : vis;
     if (target.length) cy.animate({ fit: { eles: target, padding: 70 }, duration: 420, easing: "ease-in-out" });
   }
+}
+
+// Chấm chạy dọc các mũi tên DẪN VÀO khối của bước vừa hiện (dữ liệu đi từ đâu tới) — chỉ khi trình chiếu.
+// Đi thẳng nguồn → đích (cạnh bezier gần thẳng), xong tự xoá; tắt "luồng chạy" (flowOn) thì không chạy.
+function sendPackets(stepN) {
+  if (!cy || !presenting || !flowOn || stepN <= 0) return;
+  cy.remove("node.packet");
+  cy.edges().not(".tmp, .freearrow").forEach((e) => {
+    if ((nodeOf(e.data("target")).step || 0) !== stepN || (nodeOf(e.data("source")).step || 0) > stepN) return;
+    const a = e.source().position(), b = e.target().position();
+    const p = cy.add({ group: "nodes", classes: "packet", grabbable: false, data: { id: "__pk_" + e.id() }, position: { ...a } });
+    p.animate({ position: { ...b } }, { duration: 900, easing: "ease-in-out-sine", complete: () => p.remove() });
+  });
 }
 
 // mặc định: hiện full sơ đồ + panel giới thiệu (chưa trình chiếu)

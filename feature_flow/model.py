@@ -63,6 +63,8 @@ class Node:
     x: float | None = None   # vị trí tự đặt (kéo tay); None = để auto-layout xếp
     y: float | None = None
     notes: list = field(default_factory=list)  # ghi chú riêng của khối: [{t, done}] (dấu ! đỏ) — để CUỐI (dựng positional)
+    icon: str = ""     # icon trên khối (tên trong bộ icon UI: server, database, user, laptop, cloud, ...)
+    badge: str = ""    # nhãn trạng thái nổi phía trên khối, vd "cart: 2 items"
 
 
 @dataclass
@@ -129,11 +131,12 @@ class Flow:
     _seq: int = 0
 
     # ---- dựng luồng bằng code ----
-    def _add(self, type_: str, label: str = "", explain: str = "", step: int | None = None) -> str:
+    def _add(self, type_: str, label: str = "", explain: str = "", step: int | None = None,
+             icon: str = "", badge: str = "") -> str:
         self._seq += 1
         nid = f"{type_[:1]}{self._seq}"
         self.nodes.append(Node(nid, type_, label, explain,
-                               self._seq if step is None else step))
+                               self._seq if step is None else step, icon=icon, badge=badge))
         return nid
 
     def start(self, label: str = "", explain: str = "") -> str:
@@ -142,11 +145,13 @@ class Flow:
     def end(self, label: str = "", explain: str = "") -> str:
         return self._add("end", label, explain)
 
-    def process(self, label: str, explain: str = "", step: int | None = None) -> str:
-        return self._add("process", label, explain, step)
+    def process(self, label: str, explain: str = "", step: int | None = None,
+                icon: str = "", badge: str = "") -> str:
+        return self._add("process", label, explain, step, icon, badge)
 
-    def decision(self, label: str, explain: str = "", step: int | None = None) -> str:
-        return self._add("decision", label, explain, step)
+    def decision(self, label: str, explain: str = "", step: int | None = None,
+                 icon: str = "", badge: str = "") -> str:
+        return self._add("decision", label, explain, step, icon, badge)
 
     def link(self, source: str, target: str, label: str = "") -> None:
         self.edges.append(Edge(source, target, label))

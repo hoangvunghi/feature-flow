@@ -1,7 +1,7 @@
 // ---------- render ----------
 function buildElements() {
   const els = [];
-  for (const n of flow.nodes) els.push({ data: { id: n.id, label: n.label, type: n.type, color: n.color || "" } });
+  for (const n of flow.nodes) els.push({ data: { id: n.id, label: n.label, type: n.type, color: n.color || "", icon: ICONS[n.icon] ? n.icon : "" } });
   for (const e of flow.edges) {
     const s = flow.nodes.find((n) => n.id === e.source), t = flow.nodes.find((n) => n.id === e.target);
     const back = s && t && (s.step || 0) > 0 && (t.step || 0) > 0 && (t.step < s.step);   // cạnh quay-ngược = vòng lặp
@@ -70,7 +70,7 @@ function renderCanvas(fit = true) {
     const n = flow.nodes.find((x) => x.id === el.id()); if (!n) return;
     beginChange(); const p = el.position(); n.x = p.x; n.y = p.y; markDirty();
     if ((flow.groups || []).some((g) => (g.members || []).includes(n.id))) renderGroups();
-    if (n.notes && n.notes.length) renderNoteBadges();   // badge đi theo khối
+    if ((n.notes && n.notes.length) || n.badge) renderNoteBadges();   // dấu ! + nhãn nổi đi theo khối
   });
   // kéo tay cầm vàng ở 2 đầu mũi tên THẬT → đổi khối nối (reconnect)
   cy.on("dragfree", "node.ehnd", (ev) => {
@@ -113,7 +113,7 @@ function renderCanvas(fit = true) {
     const p = ev.target.position(), dx = p.x - grpDrag.start.x, dy = p.y - grpDrag.start.y;
     grpDrag.mem.forEach((m) => { const n = flow.nodes.find((x) => x.id === m.id), el = cy.getElementById(m.id); if (n && el.nonempty()) { const q = el.position(); n.x = q.x; n.y = q.y; } });
     const g = (flow.groups || []).find((x) => x.id === grpDrag.gid); if (g && g.x != null) { g.x += dx; g.y += dy; }
-    grpDrag = null; markDirty(); renderGroups();
+    grpDrag = null; markDirty(); renderGroups(); renderNoteBadges();
   });
 
   // kéo TAY CẦM 4 góc → resize khung tự do
@@ -233,9 +233,17 @@ function addGroupHandles(g, r) {
     cy.add({ group: "nodes", classes: "grhandle", grabbable: true, data: { id: "__gh_" + g.id + "_" + c, gid: g.id, corner: c }, position: { x, y } }));
 }
 // ---------- ghi chú riêng của khối (badge ! đỏ) ----------
+// Vẽ lại các "phụ kiện" gắn khối: dấu ! ghi chú (góc phải) + nhãn trạng thái nổi Node.badge (phía trên).
 function renderNoteBadges() {
   if (!cy) return;
-  cy.remove("node.notebadge");
+  cy.remove("node.notebadge, node.statbadge");
+  flow.nodes.forEach((n) => {
+    if (!n.badge) return;
+    const el = cy.getElementById(n.id); if (el.empty()) return;
+    const bb = el.boundingBox({ includeLabels: false });
+    cy.add({ group: "nodes", classes: "statbadge" + (el.hasClass("dim") ? " dim" : ""), grabbable: false, pannable: true,
+      data: { id: "__sb_" + n.id, forid: n.id, label: n.badge }, position: { x: (bb.x1 + bb.x2) / 2, y: bb.y1 - 20 } });
+  });
   flow.nodes.forEach((n) => {
     if (!n.notes || !n.notes.length) return;
     const el = cy.getElementById(n.id); if (el.empty()) return;
@@ -281,7 +289,7 @@ function addFreeArrow(ar, i) {
 function nodeAtPos(p) {
   let hit = null;
   cy.nodes().forEach((n) => {
-    if (n.hasClass("tmp") || n.hasClass("ehnd") || n.hasClass("grhandle") || n.hasClass("notebadge") || n.hasClass("groupbox") || n.data("type") === "anchor") return;
+    if (n.hasClass("tmp") || n.hasClass("ehnd") || n.hasClass("grhandle") || n.hasClass("notebadge") || n.hasClass("statbadge") || n.hasClass("packet") || n.hasClass("groupbox") || n.data("type") === "anchor") return;
     const b = n.boundingBox();
     if (p.x >= b.x1 && p.x <= b.x2 && p.y >= b.y1 && p.y <= b.y2) hit = n;
   });
