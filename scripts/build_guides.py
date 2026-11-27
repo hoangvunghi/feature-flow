@@ -1,9 +1,9 @@
-# path: build_guide_doc.py
+# path: scripts/build_guides.py
 """3 tài liệu hướng dẫn tách riêng (kind=doc), cùng folder "Hướng dẫn":
   - huong-dan-flow     : vẽ & dùng sơ đồ flow
   - huong-dan-docs     : viết tài liệu (kiểu Word)
   - huong-dan-library  : vẽ luồng bằng thư viện code
-Chạy: uv run python build_guide_doc.py   (ghi vào feature_flow/guides/ — đóng gói kèm thư viện,
+Chạy: uv run python scripts/build_guides.py   (ghi vào feature_flow/guides/ — đóng gói kèm thư viện,
 mọi thư mục flow đều tự có hướng dẫn)
 """
 from feature_flow import Flow

@@ -1,9 +1,13 @@
-# path: build_showcase.py
+# path: examples/build_showcase.py
 """Flow mẫu dùng FULL tính năng: màu khối, nhóm (có mô tả), vòng lặp,
 ghi chú của khối (nhiều), ghi chú luồng (checklist), trình chiếu từng bước.
-Chạy: uv run python build_showcase.py  ->  feature-flow/demo-day-du.json
+Chạy: uv run python build_showcase.py  ->  examples/flows/demo-day-du.json
 """
+from pathlib import Path
+
 from feature_flow import Flow
+
+OUT = Path(__file__).resolve().parent / "flows"   # flow mẫu đi kèm ví dụ
 from feature_flow.model import Group
 
 f = Flow("demo-day-du", "Demo đầy đủ tính năng")
@@ -68,4 +72,4 @@ f.narrate(6, "Review", "Đưa code, đừng đưa kết luận.", badge="BƯỚC
 f.narrate(7, "Ship", "Commit gọn theo nhóm, push nhánh.", badge="GIẢI PHÁP")
 f.narrate(8, "Xong", "Tính năng lên nhánh, đã verify bằng số. 🎉", badge="GIẢI PHÁP")
 
-print("saved:", f.save())
+print("saved:", f.save(OUT))

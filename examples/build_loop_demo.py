@@ -1,8 +1,12 @@
-# path: build_loop_demo.py
+# path: examples/build_loop_demo.py
 """Demo luồng có VÒNG LẶP (while) — cho thấy cạnh quay ngược tạo chu trình,
 và nhóm 'Thân vòng lặp' có mô tả. Chạy: python build_loop_demo.py
 """
+from pathlib import Path
+
 from feature_flow import Flow
+
+OUT = Path(__file__).resolve().parent / "flows"   # flow mẫu đi kèm ví dụ
 from feature_flow.model import Group
 
 f = Flow("while-loop-demo", "Vòng lặp while: duyệt danh sách")
@@ -57,5 +61,5 @@ f.narrate(4, "Tăng biến + quay lại", "i = i + 1 rồi QUAY NGƯỢC về đ
 f.narrate(5, "Thoát", "Khi i >= n, điều kiện sai → ra khỏi vòng lặp.", badge="BƯỚC")
 f.narrate(6, "Kết thúc", "Đã duyệt hết danh sách. 🎉", badge="GIẢI PHÁP")
 
-p = f.save()
+p = f.save(OUT)
 print("saved:", p)

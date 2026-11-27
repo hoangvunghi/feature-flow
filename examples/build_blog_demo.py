@@ -1,8 +1,12 @@
-# path: build_blog_demo.py
+# path: examples/build_blog_demo.py
 """Blog demo (kind=doc) nhiều section — để xem render markdown + mục lục TOC.
-Chạy: uv run python build_blog_demo.py   ->  feature-flow/blog-debug-pipeline.json
+Chạy: uv run python build_blog_demo.py   ->  examples/flows/blog-debug-pipeline.json
 """
+from pathlib import Path
+
 from feature_flow import Flow
+
+OUT = Path(__file__).resolve().parent / "flows"   # flow mẫu đi kèm ví dụ
 
 MD = r"""# Debug một pipeline dữ liệu: tư duy & checklist
 
@@ -90,4 +94,4 @@ f.kind = "doc"
 f.group = "Blog"
 f.subtitle = "Tư duy khoanh vùng + checklist"
 f.doc_md = MD
-print("saved:", f.save())
+print("saved:", f.save(OUT))

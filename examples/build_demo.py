@@ -1,8 +1,12 @@
-# path: build_demo.py
+# path: examples/build_demo.py
 """Dựng flow demo bằng API thư viện — CŨNG là cách Claude 'vẽ luồng khi lên plan'.
-Chạy: python build_demo.py   (ghi ra feature-flow/ship-feature.json)
+Chạy: python build_demo.py   (ghi ra examples/flows/ship-feature.json)
 """
+from pathlib import Path
+
 from feature_flow import Flow
+
+OUT = Path(__file__).resolve().parent / "flows"   # flow mẫu đi kèm ví dụ
 
 f = Flow("ship-feature", "Quy trình ship một tính năng")
 f.group = "Hướng dẫn chung"
@@ -65,5 +69,5 @@ f.narrate(8, "Deploy", "Build image + bump phiên bản + rollout.\n"
           note="Deploy là bước dễ quên hậu kiểm — xong phải xác nhận chạy thật.", note_type="warn")
 f.narrate(9, "Xong", "Tính năng đã lên prod và được xác nhận bằng số. 🎉", badge="GIẢI PHÁP")
 
-p = f.save()
+p = f.save(OUT)
 print("saved:", p)
