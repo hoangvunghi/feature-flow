@@ -1,7 +1,7 @@
-[project]
+﻿[project]
 name = "feature-flow"
-version = "0.2.0"
-description = "Thư viện vẽ + visualize luồng ship/debug một tính năng: API Python + web xem/sửa nhúng được vào app khác"
+version = "0.3.0"
+description = "ThÆ° viá»‡n váº½ + visualize luá»“ng ship/debug má»™t tÃ­nh nÄƒng: API Python + web xem/sá»­a nhÃºng Ä‘Æ°á»£c vÃ o app khÃ¡c"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -9,7 +9,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# chạy riêng bằng uvicorn (app nhúng thường đã có server ASGI của mình)
+# cháº¡y riÃªng báº±ng uvicorn (app nhÃºng thÆ°á»ng Ä‘Ã£ cÃ³ server ASGI cá»§a mÃ¬nh)
 server = ["uvicorn[standard]>=0.29"]
 test = ["pytest>=8", "httpx>=0.27"]
 
@@ -18,7 +18,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-# gói kèm static/ (UI + JS vendor) và guides/ (tài liệu hướng dẫn) vì nằm trong thư mục package
+# gÃ³i kÃ¨m static/ (UI + JS vendor) vÃ  guides/ (tÃ i liá»‡u hÆ°á»›ng dáº«n) vÃ¬ náº±m trong thÆ° má»¥c package
 packages = ["feature_flow"]
 
 [tool.hatch.build.targets.sdist]
