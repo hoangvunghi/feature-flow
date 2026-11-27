@@ -11,6 +11,7 @@ OUT = Path(__file__).resolve().parent / "flows"   # flow mẫu đi kèm ví dụ
 
 f = Flow("arch-load-balancer", "Request đi qua cân bằng tải")
 f.group = "Ví dụ"
+f.look = "iso"   # khối 3D isometric
 f.meta(subtitle="Icon + nhãn nổi + chấm chạy theo bước.", duration="2 phút", level="Cơ bản")
 
 s = f.start()
@@ -22,6 +23,9 @@ a = f.process("Server A", step=3, icon="server", explain="Xử lý request.")
 b = f.process("Server B", step=3, icon="server", explain="Xử lý request.")
 cache = f.process("Cache phiên", step=4, icon="database", badge="phiên: user-1",
                   explain="Server nào nhận cũng đọc được giỏ hàng nhờ phiên dùng chung.")
+# màu riêng từng khối (không đặt → mặc định kiểu 3D: xanh)
+for nid, color in ((user, "#ece6da"), (lb, "#f4b47e"), (cache, "#cdb8ec")):
+    next(n for n in f.nodes if n.id == nid).color = color
 f.link(s, user); f.link(user, lb); f.link(lb, a); f.link(lb, b); f.link(a, cache); f.link(b, cache)
 
 f.narrate(1, "Người dùng gửi request", "Giỏ hàng đang có 2 món.")

@@ -115,6 +115,7 @@ class Flow:
     id: str
     title: str = ""
     kind: str = "flow"       # "flow" = sơ đồ (nodes/edges) · "doc" = tài liệu/blog (doc_md)
+    look: str = "flat"       # kiểu vẽ sơ đồ: "flat" = hộp phẳng · "iso" = khối 3D isometric
     visibility: str = "private"   # "private" = riêng · "public" = chia sẻ công khai
     doc_md: str = ""         # nội dung markdown khi kind="doc"
     group: str = ""          # nhóm/tính năng (folder ở sidebar) — rỗng = chưa phân nhóm
@@ -174,7 +175,7 @@ class Flow:
 
     # ---- lưu / nạp ----
     def to_dict(self) -> dict:
-        return {"id": self.id, "title": self.title, "kind": self.kind,
+        return {"id": self.id, "title": self.title, "kind": self.kind, "look": self.look,
                 "visibility": self.visibility, "doc_md": self.doc_md,
                 "group": self.group, "subtitle": self.subtitle,
                 "duration": self.duration, "level": self.level, "learn": list(self.learn), "notes": list(self.notes),
@@ -194,6 +195,7 @@ class Flow:
     @classmethod
     def from_dict(cls, data: dict) -> "Flow":
         f = cls(id=data["id"], title=data.get("title", ""), kind=data.get("kind", "flow"),
+                look=data.get("look", "flat"),
                 visibility=data.get("visibility", "private"),
                 doc_md=data.get("doc_md", ""), group=data.get("group", ""),
                 subtitle=data.get("subtitle", ""), duration=data.get("duration", ""),

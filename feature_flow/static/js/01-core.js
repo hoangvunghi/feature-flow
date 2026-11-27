@@ -38,9 +38,109 @@ const _iconCache = {};
 function iconUri(name, color) {
   const k = name + color;
   if (!_iconCache[k] && ICONS[name]) _iconCache[k] = "data:image/svg+xml;utf8," + encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" `
+    `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" `
     + `stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`);
   return _iconCache[k] || "none";
+}
+
+// ---------- kiểu vẽ 3D isometric (flow.look = "iso") ----------
+// Khối = ảnh SVG tự sinh (mặt trên sáng, 2 mặt bên đậm dần, viền mực dày, bóng đổ) đặt làm nền node trong suốt.
+const isIso = () => !!(flow && flow.look === "iso");
+function hexMix(hex, f) {   // f>0 pha trắng, f<0 pha đen; màu không phải #hex thì giữ nguyên
+  let h = String(hex || "").trim().replace("#", "");
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  if (!/^[0-9a-f]{6}$/i.test(h)) return hex;
+  const t = f > 0 ? 255 : 0, a = Math.abs(f);
+  return "#" + [0, 2, 4].map((i) => Math.round(parseInt(h.slice(i, i + 2), 16) * (1 - a) + t * a)
+    .toString(16).padStart(2, "0")).join("");
+}
+const _isoCache = {};
+// đa giác bo góc bán kính r (path SVG) — viền khối mềm như đồ chơi gỗ
+function roundPoly(pts, r) {
+  const n = pts.length, seg = [];
+  for (let i = 0; i < n; i++) {
+    const p = pts[i], a = pts[(i - 1 + n) % n], b = pts[(i + 1) % n];
+    const u = (q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1; return [p[0] + dx / l * r, p[1] + dy / l * r]; };
+    const s0 = u(a), s1 = u(b);
+    seg.push(`${i ? "L" : "M"}${s0[0].toFixed(1)} ${s0[1].toFixed(1)}Q${p[0]} ${p[1]} ${s1[0].toFixed(1)} ${s1[1].toFixed(1)}`);
+  }
+  return seg.join("") + "Z";
+}
+function isoUri(type, fill, icon, ink) {
+  const k = [type, fill, icon, ink].join("|");
+  if (_isoCache[k]) return _isoCache[k];
+  const grad = (id, a, b) => `<linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
+  const defs = "<defs>" + grad("t", hexMix(fill, 0.62), hexMix(fill, 0.46)) + grad("l", hexMix(fill, 0.12), hexMix(fill, -0.02))
+    + grad("r", hexMix(fill, -0.06), hexMix(fill, -0.16))
+    + `<filter id="b" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="3.2"/></filter>`;
+  const line = `fill="none" stroke="${ink}" stroke-width="4" stroke-linejoin="round"`;
+  const ic = (cx, cy, sz) => ICONS[icon] ? `<svg x="${cx - sz / 2}" y="${cy - sz / 2}" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" `
+    + `stroke="${ink}" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">${ICONS[icon]}</svg>` : "";
+  const P = (pts) => pts.map((q) => q.join(" ")).join(" ");
+  let vb, body;
+  if (type === "decision") {          // tấm hình thoi có độ dày
+    vb = "0 0 120 96";
+    const T = [[60, 10], [114, 40], [60, 70], [6, 40]], out = [[60, 10], [114, 40], [114, 52], [60, 82], [6, 52], [6, 40]];
+    const o = roundPoly(out, 8);
+    body = defs + `<clipPath id="c"><path d="${o}"/></clipPath></defs>`
+      + `<ellipse cx="62" cy="82" rx="52" ry="11" fill="${ink}" opacity=".25" filter="url(#b)"/>`
+      + `<g clip-path="url(#c)"><polygon points="${P([[6, 40], [60, 70], [114, 40], [114, 52], [60, 82], [6, 52]])}" fill="url(#r)"/>`
+      + `<polygon points="${P(T)}" fill="url(#t)"/></g>`
+      + `<path d="M6 40 60 70 114 40" fill="none" stroke="${ink}" stroke-opacity=".3" stroke-width="1.4"/>`
+      + `<path d="${o}" ${line}/>` + ic(60, 34, 24);
+  } else if (type === "start" || type === "end") {   // đĩa tròn
+    vb = "0 0 120 76";
+    body = defs + "</defs>" + `<ellipse cx="62" cy="58" rx="52" ry="12" fill="${ink}" opacity=".25" filter="url(#b)"/>`
+      + `<path d="M8 30v12c0 13 23 22 52 22s52-9 52-22V30" fill="url(#r)" stroke="${ink}" stroke-width="3.2"/>`
+      + `<ellipse cx="60" cy="30" rx="52" ry="22" fill="url(#t)" stroke="${ink}" stroke-width="3.2"/>`;
+  } else {                            // khối hộp lục giác bo góc
+    vb = "0 0 120 112";   // tỉ lệ khối bè, lùn như sơ đồ isometric chuẩn: mặt bên ≈ 0,36 × bề rộng
+    const T = [60, 6], R1 = [114, 36], R2 = [114, 75], B = [60, 105], L2 = [6, 75], L1 = [6, 36], C = [60, 66];
+    const o = roundPoly([T, R1, R2, B, L2, L1], 14);
+    body = defs + `<clipPath id="c"><path d="${o}"/></clipPath></defs>`
+      + `<ellipse cx="62" cy="104" rx="52" ry="8" fill="${ink}" opacity=".22" filter="url(#b)"/>`
+      + `<g clip-path="url(#c)"><polygon points="${P([L1, C, B, L2])}" fill="url(#l)"/>`
+      + `<polygon points="${P([R1, R2, B, C])}" fill="url(#r)"/><polygon points="${P([T, R1, C, L1])}" fill="url(#t)"/></g>`
+      + `<path d="M${L1.join(" ")} ${C.join(" ")} ${R1.join(" ")}" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.6"/>`
+      + `<path d="${o}" ${line}/>` + ic(60, 33, 30);
+  }
+  return (_isoCache[k] = "data:image/svg+xml;utf8," + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="${vb}">${body}</svg>`));
+}
+// Chữ trên khối 3D: font HỆ THỐNG (đủ dấu tiếng Việt sẵn, không phải tải từng phần như font web → không méo "ườ").
+const ISO_FONT = "FFMono, Segoe UI, Helvetica Neue, Roboto, Arial, monospace";
+function isoStyles(ink, lineInk, accent) {
+  // màu mặc định kiểu 3D: khối xanh, rẽ nhánh cam (khối tự đặt màu giữ màu của nó)
+  const ISO_FILL = { process: "#a9c6ec", decision: "#f4b47e", start: FILL.start, end: FILL.end };
+  const img = (n) => isoUri(n.data("type"), n.data("color") || ISO_FILL[n.data("type")] || ISO_FILL.process, n.data("icon"), lineInk);
+  const node = { "shape": "rectangle", "background-opacity": 0, "border-width": 0, "background-image": img,
+    "background-fit": "contain", "background-clip": "none", "background-image-containment": "over",
+    "background-width": "100%", "background-height": "100%", "background-position-x": "50%", "background-position-y": "50%",
+    "font-family": ISO_FONT, "font-weight": 700, "color": lineInk };
+  return [
+    { selector: 'node[type="process"]', style: { ...node, "width": 210, "height": 196, "font-size": 23,
+        "shape": "polygon", "shape-polygon-points": [0, -0.89, 0.9, -0.36, 0.9, 0.34, 0, 0.88, -0.9, 0.34, -0.9, -0.36],
+        "text-max-width": 160, "text-margin-y": 26, "line-height": 1.1 } },
+    { selector: 'node[type="decision"]', style: { ...node, "width": 200, "height": 160, "font-size": 18,
+        "shape": "polygon", "shape-polygon-points": [0, -0.79, 0.9, -0.17, 0.9, 0.08, 0, 0.71, -0.9, 0.08, -0.9, -0.17],
+        "text-max-width": 130, "text-margin-y": 4 } },
+    { selector: 'node[type="start"],node[type="end"]', style: { ...node, "width": 96, "height": 61, "label": "",
+        "shape": "ellipse" } },
+    { selector: "edge", style: { "width": 3.4, "line-color": lineInk, "target-arrow-color": lineInk, "arrow-scale": 1.5,
+        "curve-style": "round-segments", "segment-radius": 26, "edge-distances": "node-position",
+        "segment-weights": (e) => e.data("sw") ?? 0.5, "segment-distances": (e) => e.data("sd") ?? 0,
+        "line-style": "solid", "font-size": 14 } },
+    { selector: "edge.loopback", style: { "curve-style": "unbundled-bezier" } },
+    { selector: "node.statbadge", style: { "height": 42, "corner-radius": 21, "border-width": 3.6, "font-size": 18,
+        "background-color": "#fffdf8", "color": lineInk, "border-color": lineInk,
+        "font-family": ISO_FONT, "font-weight": 700,
+        "width": (n) => 36 + 10.5 * [...(n.data("label") || "")].length } },
+    // khối 3D không có viền chữ nhật → đánh dấu bước hiện tại / đang chọn bằng quầng sáng phía dưới
+    { selector: 'node.current[type="process"],node.current[type="decision"],node.current[type="start"],node.current[type="end"]',
+      style: { "border-width": 0, "underlay-color": accent, "underlay-opacity": 0.28, "underlay-padding": 8, "underlay-shape": "ellipse" } },
+    { selector: 'node.sel[type="process"],node.sel[type="decision"],node.sel[type="start"],node.sel[type="end"]',
+      style: { "border-width": 0, "underlay-color": "#d89a2e", "underlay-opacity": 0.35, "underlay-padding": 8, "underlay-shape": "ellipse" } },
+  ];
 }
 
 // Màu khối theo SẮC ĐỘ đang chọn (đọc biến CSS) — đổi theme thì cy.style(stylesheet()) vẽ lại.
@@ -51,7 +151,7 @@ const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyV
 function stylesheet() {
   Object.assign(FILL, { process: cssVar("card2"), decision: cssVar("amber"), start: cssVar("green"), end: cssVar("tint2") });
   const ink = cssVar("ink"), lineInk = cssVar("line-ink"), soft = cssVar("ink-soft"), accent = cssVar("green-d");
-  return [
+  const base = [
     { selector: "node", style: {
         "label": "data(label)", "color": ink, "text-wrap": "wrap", "text-max-width": 180,
         "text-valign": "center", "text-halign": "center", "font-family": "Nunito, sans-serif",
@@ -114,5 +214,6 @@ function stylesheet() {
     { selector: ".sel", style: { "border-color": "#d89a2e", "border-width": 4 } },
     { selector: ".linksrc", style: { "border-color": "#4fd2a0", "border-width": 4 } },
   ];
+  return isIso() ? base.concat(isoStyles(ink, lineInk, accent)) : base;
 }
 

@@ -49,8 +49,15 @@ $("#editMode").addEventListener("change", (e) => {
 function zoomBy(f) { if (!cy) return; cy.zoom({ level: cy.zoom() * f, renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 } }); }
 $("#btnZoomIn").addEventListener("click", () => zoomBy(1.2));
 $("#btnZoomOut").addEventListener("click", () => zoomBy(1 / 1.2));
-$("#btnFit").addEventListener("click", () => cy && cy.fit(undefined, 30));
+$("#btnFit").addEventListener("click", () => fitAll(30));
 $("#btnFlow").addEventListener("click", () => setFlow(!flowOn));
+// 🧊 3D: đổi kiểu vẽ của luồng (flat ⇄ iso). Khối iso to hơn → tự sắp xếp lại cho khỏi chồng; lưu theo luồng.
+$("#btnIso").addEventListener("click", () => {
+  if (!flow || flow.kind === "doc") return;
+  beginChange(); flow.look = isIso() ? "flat" : "iso";
+  flow.nodes.forEach((n) => { n.x = null; n.y = null; });
+  markDirty(); renderCanvas(true); reveal(curStepN());
+});
 // Format: xoá vị trí tay → auto-layout dagre xếp lại gọn, hết chồng chéo
 $("#btnFormat").addEventListener("click", () => {
   beginChange();

@@ -94,3 +94,9 @@ def test_icon_badge_roundtrip(tmp_path):
     assert (node.icon, node.badge) == ("server", "cpu 40%")
     assert Flow.from_markdown("arch", g.to_markdown()).to_dict() == g.to_dict()
     assert Flow.from_dict({"id": "old", "nodes": [{"id": "p1", "type": "process"}]}).nodes[0].icon == ""   # JSON cũ
+
+
+def test_look_roundtrip(tmp_path):
+    f = Flow("iso", "Iso"); f.look = "iso"; f.save(tmp_path)
+    assert Flow.load("iso", tmp_path).look == "iso"
+    assert Flow.from_dict({"id": "old"}).look == "flat"          # JSON cũ không có look → phẳng

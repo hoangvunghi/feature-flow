@@ -7,7 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M6 7 L24 16 L6 25 L11 16 Z' fill='%23c0603e' transform='rotate(-22 16 16)'/></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="static/style.css?v=94" />
+<link rel="stylesheet" href="static/style.css?v=100" />
 <!-- áp sắc độ đã chọn TRƯỚC khi vẽ trang (tránh nháy màu). Chưa chọn lần nào (null) → giữ mặc định
      (brand.json "theme" nếu có); đã chọn Thanh Trà ("") thì vẫn tôn trọng lựa chọn đó. -->
 <script>try { var t = localStorage.getItem("ff-theme"); if (t !== null) document.documentElement.dataset.theme = t; } catch (e) {}</script>
@@ -65,6 +65,7 @@
         <button id="btnFit" class="btn chip-btn icon" title="Vừa khung">⤢</button>
         <button id="btnFlow" class="btn chip-btn on" title="Bật/tắt mũi tên chạy theo chiều đi">✦ Dừng chảy</button>
         <button id="btnFormat" class="btn chip-btn" title="Tự sắp xếp lại cho gọn, hết chồng chéo">⌗ Sắp xếp</button>
+        <button id="btnIso" class="btn chip-btn" title="Đổi kiểu vẽ: khối 3D isometric ⇄ hộp phẳng (lưu theo luồng)">🧊 3D</button>
         <button id="btnMax" class="btn chip-btn" title="Phóng to toàn màn hình (Esc để thoát)">⛶ Phóng to</button>
         <button id="btnPresent" class="btn solid">▶ Trình chiếu</button>
         <button id="btnReplay" class="btn chip-btn">↺ Phát lại</button>
@@ -248,11 +249,11 @@
 </div>
 
 <div id="toast" class="toast hidden"></div>
-<script src="static/js/01-core.js?v=94"></script>
-<script src="static/js/02-canvas.js?v=94"></script>
-<script src="static/js/03-view.js?v=94"></script>
-<script src="static/js/04-edit.js?v=94"></script>
-<script src="static/js/05-data.js?v=94"></script>
-<script src="static/js/06-wiring.js?v=94"></script>
+<script src="static/js/01-core.js?v=100"></script>
+<script src="static/js/02-canvas.js?v=100"></script>
+<script src="static/js/03-view.js?v=100"></script>
+<script src="static/js/04-edit.js?v=100"></script>
+<script src="static/js/05-data.js?v=100"></script>
+<script src="static/js/06-wiring.js?v=100"></script>
 </body>
 </html>

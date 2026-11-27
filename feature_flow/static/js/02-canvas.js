@@ -10,14 +10,44 @@ function buildElements() {
   return els;
 }
 
+// Vừa khung nhưng CHỪA chỗ thanh công cụ nổi phía trên canvas (không thì khối/nhãn trên cùng bị che).
+function fitAll(pad = 40) {
+  if (!cy) return;
+  const tb = document.querySelector(".canvas-tools"), th = tb ? tb.offsetHeight : 0;
+  cy.fit(undefined, pad + th / 2);
+  cy.panBy({ x: 0, y: th / 2 });
+}
+
+// Kiểu 3D: mũi tên đi GẤP KHÚC theo 2 trục isometric (±30°) như sơ đồ kiến trúc — đi theo trục u (xuống-phải
+// / lên-trái) rồi trục v (lên-phải / xuống-trái). Điểm gập tính ra (weight, distance) theo đường nguồn→đích
+// cho curve-style round-segments. Cạnh đã nằm trên 1 trục / vòng lặp → để thẳng.
+function isoRoute(edges) {
+  if (!cy || !isIso()) return;
+  const U = [0.866, 0.5], V = [0.866, -0.5];
+  edges.forEach((e) => {
+    if (e.hasClass("loopback") || e.hasClass("freearrow") || e.hasClass("tmp")) return;
+    const s = e.source().position(), t = e.target().position();
+    const dx = t.x - s.x, dy = t.y - s.y, L2 = dx * dx + dy * dy;
+    const a = (dx / 0.866 + 2 * dy) / 2, b = (dx / 0.866 - 2 * dy) / 2;   // d = a·U + b·V
+    if (!L2 || Math.abs(a) < 8 || Math.abs(b) < 8) { e.data({ sw: 0.5, sd: 0 }); return; }
+    const px = a * U[0], py = a * U[1];                                   // điểm gập (tương đối nguồn)
+    e.data({ sw: (px * dx + py * dy) / L2, sd: (dx * py - dy * px) / Math.sqrt(L2) });
+  });
+}
+
 function renderCanvas(fit = true) {
   if (cy) cy.destroy();
+  document.querySelector(".canvas-wrap").classList.toggle("iso", isIso());   // nền lưới isometric
+  const b3 = $("#btnIso"); if (b3) b3.classList.toggle("on", isIso());
   cy = cytoscape({ container: $("#cy"), elements: buildElements(), style: stylesheet(),
     wheelSensitivity: 0.2, maxZoom: 1.5, minZoom: 0.12 });
   // 1) Lần ĐẦU (chưa khối nào có toạ độ) → auto-layout dagre xếp dọc. Có bố cục rồi thì KHÔNG xếp lại.
   const unpos = flow.nodes.filter((n) => n.x == null || n.y == null);
   if (flow.nodes.length && unpos.length === flow.nodes.length) {
-    cy.layout({ name: "dagre", rankDir: "TB", nodeSep: 50, rankSep: 62 }).run();
+    if (isIso()) {
+      cy.layout({ name: "dagre", rankDir: "LR", nodeSep: 30, rankSep: 50 }).run();
+      cy.nodes().forEach((el) => { const p = el.position(); el.position({ x: (p.x + p.y) * 0.866, y: (p.y - p.x) * 0.5 }); });
+    } else cy.layout({ name: "dagre", rankDir: "TB", nodeSep: 50, rankSep: 62 }).run();
   }
   // 2) Áp vị trí đã lưu (kéo tay / đóng băng).
   flow.nodes.forEach((n) => { if (n.x != null && n.y != null) { const el = cy.getElementById(n.id); if (el.nonempty()) el.position({ x: n.x, y: n.y }); } });
@@ -32,7 +62,15 @@ function renderCanvas(fit = true) {
   (flow.arrows || []).forEach((ar, i) => addFreeArrow(ar, i));                   // mũi tên vô danh (toạ độ tuyệt đối)
   renderGroups();                                                                // khung nhóm (bọc quanh members)
   renderNoteBadges();                                                            // dấu ! ghi chú khối
-  if (fit) cy.fit(undefined, 40);
+  isoRoute(cy.edges());
+  if (fit) fitAll();
+  // Font web (Nunito/Space Mono) tải phần dấu tiếng Việt LƯỜI — chỉ khi HTML dùng tới; canvas vẽ trước thì
+  // chữ bị chắp font khác ("Ngư̛ời"). Ép tải bộ dấu rồi DỰNG LẠI canvas (Cytoscape cache ảnh chữ → đổi style không vẽ lại); 1 lần mỗi phiên.
+  if (!window._viFontsReady && document.fonts) {
+    const vi = "Người ỏằẫịụẩđơ ABC abc";
+    Promise.all(["800 16px Nunito", "700 12px 'Space Mono'", "700 16px FFMono"].map((f) => document.fonts.load(f, vi)))
+      .then(() => { window._viFontsReady = true; if (cy) { const z = cy.zoom(), pn = cy.pan(); renderCanvas(false); cy.viewport({ zoom: z, pan: pn }); reveal(curStepN()); } }).catch(() => {});
+  }
 
   cy.on("tap", "node", (ev) => onNodeTap(ev.target));
   cy.on("tap", "edge", (ev) => onEdgeTap(ev.target));
@@ -64,6 +102,7 @@ function renderCanvas(fit = true) {
     markDirty();
   });
   // kéo KHỐI → lưu vị trí (không để layout kéo về chỗ cũ ở lần render sau)
+  cy.on("drag", "node", (ev) => { if (isIso()) isoRoute(ev.target.connectedEdges()); });
   cy.on("dragfree", "node", (ev) => {
     const el = ev.target;
     if (el.hasClass("anchor") || el.hasClass("ehnd") || el.hasClass("tmp") || el.hasClass("grhandle") || el.hasClass("notebadge") || !editing()) return;
@@ -107,6 +146,7 @@ function renderCanvas(fit = true) {
     if (!grpDrag) return;
     const p = ev.target.position(), dx = p.x - grpDrag.start.x, dy = p.y - grpDrag.start.y;
     grpDrag.mem.forEach((m) => { const el = cy.getElementById(m.id); if (el.nonempty()) el.position({ x: m.x + dx, y: m.y + dy }); });
+    if (isIso()) isoRoute(cy.edges());
   });
   cy.on("dragfree", "node.groupbox", (ev) => {
     if (!grpDrag) return;
@@ -177,6 +217,7 @@ function flowTick() {
   flowRaf = requestAnimationFrame(flowTick);
   if (!flowOn || !cy) return;
   dashOff -= 0.7; if (dashOff < -100000) dashOff = 0;     // giảm offset → kiến bò từ nguồn → đích
+  if (isIso()) return;   // kiểu 3D: mũi tên nét liền
   cy.edges().not(".tmp").style({ "line-style": "dashed", "line-dash-pattern": [7, 6], "line-dash-offset": dashOff });
 }
 function startFlowAnim() { if (flowRaf == null) flowTick(); }
@@ -242,7 +283,7 @@ function renderNoteBadges() {
     const el = cy.getElementById(n.id); if (el.empty()) return;
     const bb = el.boundingBox({ includeLabels: false });
     cy.add({ group: "nodes", classes: "statbadge" + (el.hasClass("dim") ? " dim" : ""), grabbable: false, pannable: true,
-      data: { id: "__sb_" + n.id, forid: n.id, label: n.badge }, position: { x: (bb.x1 + bb.x2) / 2, y: bb.y1 - 20 } });
+      data: { id: "__sb_" + n.id, forid: n.id, label: n.badge }, position: { x: (bb.x1 + bb.x2) / 2, y: bb.y1 - (isIso() ? 24 : 20) } });
   });
   flow.nodes.forEach((n) => {
     if (!n.notes || !n.notes.length) return;
